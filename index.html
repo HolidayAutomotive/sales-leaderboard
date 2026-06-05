@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Holiday Automotive – Sales Leaderboard</title>
+  <style>
+    :root {
+      --red:#CC0000; --red-dark:#a30000;
+      --blue:#003087; --blue-mid:#1a4ba0; --blue-light:#e8edf7;
+      --gold:#e6a817; --silver:#9e9e9e; --bronze:#cd7f32;
+      --neg:#b71c1c; --neg-bg:#fff3f3;
+      --bg:#f0f2f8; --white:#fff; --text:#1a1a2e; --muted:#666;
+      --border:#d0d9ee; --success:#2e7d32;
+      --ford-color:#1565c0; --mazda-color:#CC0000;
+      --budget-color:#2e7d32; --gm-color:#003087;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+    /* ── Header ── */
+    header{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-mid) 100%);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+    .hdr-top{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:3px solid var(--red)}
+    .logo-area{display:flex;align-items:center;gap:14px}
+    .logo-box{background:var(--red);color:#fff;font-size:26px;font-weight:900;width:50px;height:50px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .logo-text h1{font-size:20px;font-weight:800;letter-spacing:.5px}
+    .logo-text p{font-size:11px;opacity:.8;letter-spacing:1px;text-transform:uppercase}
+    .hdr-right{text-align:right}
+    .month-badge{background:var(--red);color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;display:inline-block;margin-bottom:3px}
+    .last-updated{font-size:11px;opacity:.65}
+    .hdr-sub{background:rgba(0,0,0,.15);padding:8px 24px;font-size:12px;opacity:.9;font-style:italic}
+
+    /* ── Tab bar ── */
+    .tab-wrap{background:var(--blue);border-bottom:3px solid var(--red);overflow-x:auto;white-space:nowrap;scrollbar-width:thin}
+    .tab-wrap::-webkit-scrollbar{height:3px}
+    .tab-wrap::-webkit-scrollbar-thumb{background:var(--red)}
+    .tab-bar{display:inline-flex;gap:2px;padding:0 16px}
+    .tab{display:inline-block;padding:10px 18px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);border:none;cursor:pointer;font-size:13px;font-weight:600;border-top:3px solid transparent;transition:all .15s;white-space:nowrap}
+    .tab:hover{background:rgba(255,255,255,.2);color:#fff}
+    .tab.active{background:#fff;color:var(--blue);border-top-color:var(--red)}
+    .tab.tab-current::after{content:'★';margin-left:5px;font-size:10px;color:var(--gold)}
+
+    /* ── Summary bar ── */
+    .summary-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;padding:16px 20px;background:#fff;border-bottom:1px solid var(--border)}
+    .stat-card{background:var(--blue-light);border-radius:10px;padding:10px 14px;text-align:center;border-top:3px solid var(--blue);transition:transform .15s}
+    .stat-card:hover{transform:translateY(-2px)}
+    .stat-card.neg-card{background:var(--neg-bg);border-top-color:var(--neg)}
+    .stat-card.vip-card{background:#fffbeb;border-top-color:var(--gold)}
+    .sc-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600}
+    .sc-val{font-size:26px;font-weight:800;color:var(--blue);margin:3px 0 1px}
+    .neg-card .sc-val{color:var(--neg)}
+    .vip-card .sc-val{color:#b45309}
+    .sc-sub{font-size:10px;color:var(--muted)}
+
+    /* ── Main ── */
+    main{padding:18px 20px;max-width:1440px;margin:0 auto}
+
+    /* ── Action bar ── */
+    .action-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+    .action-bar-title{flex:1;font-size:15px;font-weight:700;color:var(--blue)}
+
+    /* ── Buttons ── */
+    .btn{padding:7px 16px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
+    .btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:var(--blue-mid)}
+    .btn-red{background:var(--red);color:#fff}.btn-red:hover{background:var(--red-dark)}
+    .btn-green{background:var(--success);color:#fff}.btn-green:hover{background:#1b5e20}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+    .btn-danger{background:transparent;border:1px solid #e57373;color:var(--neg)}.btn-danger:hover{background:var(--neg-bg)}
+    .btn-sm{padding:4px 10px;font-size:11px}
+
+    /* ── Section headers ── */
+    .section-hdr{display:flex;align-items:center;justify-content:space-between;margin:20px 0 10px;flex-wrap:wrap;gap:6px}
+    .section-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800}
+    .section-title .accent{width:5px;height:22px;border-radius:3px;flex-shrink:0}
+    .accent-top10{background:var(--gold)}
+    .accent-gm{background:var(--gm-color)}
+    .accent-ford{background:var(--ford-color)}
+    .accent-mazda{background:var(--mazda-color)}
+    .accent-budget{background:var(--budget-color)}
+    .rt-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;color:#fff;letter-spacing:.5px;text-transform:uppercase}
+    .rt-gm{background:var(--gm-color)}
+    .rt-ford{background:var(--ford-color)}
+    .rt-mazda{background:var(--mazda-color)}
+    .rt-budget{background:var(--budget-color)}
+    .rt-top10{background:var(--gold);color:#5a3a00}
+
+    /* ── Tables ── */
+    .table-wrap{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.07);overflow:hidden;margin-bottom:6px}
+    .tbl-top10 thead{background:linear-gradient(90deg,#b45309,var(--gold))}
+    .tbl-gm thead{background:var(--gm-color)}
+    .tbl-ford thead{background:var(--ford-color)}
+    .tbl-mazda thead{background:var(--mazda-color)}
+    .tbl-budget thead{background:var(--budget-color)}
+    .tbl-neg thead{background:var(--neg)}
+    table{width:100%;border-collapse:collapse}
+    thead th{padding:10px 12px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#fff;white-space:nowrap}
+    thead th.tc{text-align:center}
+    thead th.sortable{cursor:pointer;user-select:none}
+    thead th.sortable:hover{opacity:.85}
+    thead th.sort-asc::after{content:' ↑'}
+    thead th.sort-desc::after{content:' ↓'}
+    tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+    tbody tr:last-child{border-bottom:none}
+    tbody tr:hover{background:#f5f7fd}
+    tbody td{padding:9px 12px;font-size:13px}
+    td.tc{text-align:center}
+    td.num{text-align:center;font-weight:700;font-size:15px;color:var(--blue)}
+    td.neg-num{text-align:center;font-weight:700;font-size:15px;color:var(--neg)}
+    td.act{text-align:right;white-space:nowrap}
+
+    /* Rank */
+    .rnk{text-align:center;font-weight:800;font-size:17px;min-width:36px}
+    .rnk-1{color:var(--gold)} .rnk-2{color:var(--silver)} .rnk-3{color:var(--bronze)}
+    .rnk-other{color:var(--muted);font-size:13px;font-weight:600}
+
+    /* Avatar + name */
+    .nc-inner{display:flex;align-items:center}
+    .avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;margin-right:9px;border:2px solid var(--border)}
+    .avatar-init{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;color:#fff;font-size:12px;font-weight:700;margin-right:9px;flex-shrink:0}
+    .nc-name{font-weight:600;font-size:14px}
+    .nc-sub{font-size:10px;color:var(--muted);font-weight:400}
+
+    /* Bar */
+    .bar-wrap{display:flex;align-items:center;gap:7px}
+    .bar-bg{flex:1;height:5px;background:var(--border);border-radius:3px;min-width:50px}
+    .bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--red));transition:width .4s}
+    .bar-num{font-weight:700;font-size:15px;color:var(--blue);min-width:22px;text-align:right}
+
+    /* VIP badge */
+    .vip-val{display:inline-block;background:#fffbeb;border:1px solid var(--gold);color:#b45309;border-radius:10px;padding:1px 8px;font-size:12px;font-weight:700}
+    .vip-zero{color:var(--muted);font-size:12px}
+
+    /* Empty state */
+    .empty{text-align:center;padding:36px 20px;color:var(--muted)}
+    .empty .ei{font-size:36px;margin-bottom:8px}
+    .empty p{font-size:13px}
+
+    /* Read-only banner */
+    .ro-banner{background:var(--blue-light);border-left:4px solid var(--blue);padding:8px 14px;font-size:12px;color:var(--blue);font-weight:600;margin-bottom:14px;border-radius:0 6px 6px 0}
+
+    /* ── Modals ── */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+    .modal-overlay.open{display:flex}
+    .modal{background:#fff;border-radius:14px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+    .modal-hdr{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:#fff;padding:16px 22px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1}
+    .modal-hdr h3{font-size:15px;font-weight:700}
+    .close-btn{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;opacity:.8;line-height:1}
+    .close-btn:hover{opacity:1}
+    .modal-body{padding:22px}
+    .modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+    /* Form */
+    .fg{margin-bottom:14px}
+    .fg label{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:var(--muted)}
+    .fg input,.fg select{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;transition:border-color .15s}
+    .fg input:focus,.fg select:focus{outline:none;border-color:var(--blue)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .fdiv{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);padding-bottom:5px;margin:16px 0 12px}
+    .fhint{font-size:10px;color:var(--muted);margin-top:3px}
+    .neg-form{background:var(--neg-bg);border-radius:8px;padding:10px;margin-top:-4px}
+    .neg-form label{color:var(--neg)}
+
+    /* Photo upload */
+    .photo-area{border:2px dashed var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;position:relative;transition:all .2s}
+    .photo-area:hover{border-color:var(--blue);background:var(--blue-light)}
+    .photo-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .photo-prev-wrap{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+    .photo-prev{width:56px;height:56px;border-radius:50%;object-fit:cover;border:3px solid var(--blue);display:none}
+    .photo-plc{width:56px;height:56px;border-radius:50%;background:var(--blue-light);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+    .photo-txt{font-size:12px;color:var(--muted)}.photo-txt strong{display:block;color:var(--blue);font-size:13px;margin-bottom:2px}
+    .photo-rm{margin-top:4px;font-size:10px;color:var(--neg);background:none;border:none;cursor:pointer;text-decoration:underline;display:none}
+
+    /* CSV modal */
+    .csv-drop{border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;position:relative;transition:all .2s}
+    .csv-drop:hover,.csv-drop.drag-over{border-color:var(--blue);background:var(--blue-light)}
+    .csv-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .csv-mode-row{display:flex;gap:8px;margin-bottom:14px}
+    .csv-mode-btn{flex:1;padding:9px;border:2px solid var(--border);border-radius:7px;background:#fff;cursor:pointer;font-size:12px;font-weight:600;text-align:center;transition:all .15s}
+    .csv-mode-btn.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+    .csv-tpl{background:#f8f9fa;border-radius:7px;padding:10px;font-size:11px;font-family:monospace;color:var(--muted);margin-bottom:12px;white-space:pre;overflow-x:auto}
+    .csv-status{margin-top:8px;font-size:12px;font-weight:600}
+    .csv-status.ok{color:var(--success)}.csv-status.err{color:var(--neg)}
+    .csv-prev-tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+    .csv-prev-tbl th{background:var(--blue);color:#fff;padding:5px 9px}
+    .csv-prev-tbl td{padding:4px 9px;border-bottom:1px solid var(--border)}
+    .csv-prev-tbl tr:nth-child(even) td{background:var(--blue-light)}
+
+    /* Toast */
+    #toast{position:fixed;bottom:22px;right:22px;color:#fff;padding:11px 18px;border-radius:8px;font-weight:600;font-size:13px;z-index:2000;display:none;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:300px}
+
+    @media(max-width:768px){
+      .summary-bar{grid-template-columns:repeat(3,1fr);padding:10px}
+      main{padding:10px}
+      .hdr-top{padding:10px 14px}
+      .bar-bg{display:none}
+      thead th:nth-child(n+5){display:none}
+      tbody td:nth-child(n+5){display:none}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header>
+  <div class="hdr-top">
+    <div class="logo-area">
+      <div class="logo-box">H</div>
+      <div class="logo-text">
+        <h1>Holiday Automotive</h1>
+        <p>Sales Leaderboard &nbsp;•&nbsp; It's Worth the Trip!</p>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="month-badge" id="monthBadge">—</div>
+      <div class="last-updated" id="lastUpdated">—</div>
+    </div>
+  </div>
+  <div class="hdr-sub">🏆 Fond du Lac, WI &nbsp;|&nbsp; Chevrolet · Buick · GMC · Cadillac · Ford · Mazda · Budget Center</div>
+</header>
+
+<!-- ═══ TABS ═══ -->
+<div class="tab-wrap">
+  <div class="tab-bar" id="tabBar">
+    <button class="tab tab-current active" data-tab="current" onclick="switchTab('current')">June 2026</button>
+    <button class="tab" data-tab="ytd" onclick="switchTab('ytd')">📊 YTD 2026</button>
+    <button class="tab" data-tab="may" onclick="switchTab('may')">May 2026</button>
+    <button class="tab" data-tab="apr" onclick="switchTab('apr')">April 2026</button>
+    <button class="tab" data-tab="mar" onclick="switchTab('mar')">March 2026</button>
+    <button class="tab" data-tab="feb" onclick="switchTab('feb')">February 2026</button>
+    <button class="tab" data-tab="jan" onclick="switchTab('jan')">January 2026</button>
+  </div>
+</div>
+
+<!-- ═══ SUMMARY CARDS ═══ -->
+<div class="summary-bar" id="summaryBar">
+  <div class="stat-card"><div class="sc-label">Total Units</div><div class="sc-val" id="sc-units">—</div><div class="sc-sub">All rooftops</div></div>
+  <div class="stat-card"><div class="sc-label">Leases</div><div class="sc-val" id="sc-leases">—</div><div class="sc-sub">MTD</div></div>
+  <div class="stat-card"><div class="sc-label">Warranties</div><div class="sc-val" id="sc-warranties">—</div><div class="sc-sub">MTD</div></div>
+  <div class="stat-card vip-card"><div class="sc-label">VIP+</div><div class="sc-val" id="sc-vip">—</div><div class="sc-sub">MTD</div></div>
+  <div class="stat-card neg-card"><div class="sc-label">Dealer Trades</div><div class="sc-val" id="sc-trades">—</div><div class="sc-sub">Negative</div></div>
+  <div class="stat-card"><div class="sc-label">Salespeople</div><div class="sc-val" id="sc-people">—</div><div class="sc-sub">Active</div></div>
+</div>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main id="mainContent"></main>
+
+<!-- ═══ TOAST ═══ -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════
+     MODAL: Add Salesperson
+═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-hdr"><h3>Add Salesperson</h3><button class="close-btn" onclick="closeModal('addModal')">×</button></div>
+    <div class="modal-body">
+      <div class="fg"><label>Full Name *</label><input type="text" id="newName" placeholder="e.g. John Smith" /></div>
+      <div class="form-row">
+        <div class="fg"><label>Rooftop *</label>
+          <select id="newRooftop">
+            <option value="gm">GM</option>
+            <option value="ford">Ford</option>
+            <option value="mazda">Mazda</option>
+            <option value="budget">Budget Center</option>
+          </select>
+        </div>
+        <div class="fg"><label>Store / Detail</label><input type="text" id="newStore" placeholder="Optional" /></div>
+      </div>
+      <div class="fdiv">📷 Photo (optional)</div>
+      <div class="photo-area" onclick="document.getElementById('addPhotoFile').click()">
+        <input type="file" id="addPhotoFile" accept="image/*" onchange="handlePhoto(this,'addPrev','addPlc','addRm')" onclick="event.stopPropagation()" />
+        <div class="photo-prev-wrap">
+          <div class="photo-plc" id="addPlc">👤</div>
+          <img class="photo-prev" id="addPrev" src="" alt="" />
+          <div class="photo-txt"><strong>Click to upload photo</strong>JPG, PNG or WebP</div>
+        </div>
+        <button class="photo-rm" id="addRm" onclick="removePhoto('addPhotoFile','addPrev','addPlc','addRm');event.stopPropagation()">✕ Remove</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addPerson()">Add Salesperson</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODAL: Enter / Update Stats
+═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="entryModal">
+  <div class="modal">
+    <div class="modal-hdr"><h3>Enter / Update Stats</h3><button class="close-btn" onclick="closeModal('entryModal')">×</button></div>
+    <div class="modal-body">
+      <div class="fg"><label>Salesperson *</label>
+        <select id="entryPerson" onchange="loadEntryFields(this.value)"><option value="">— Select —</option></select>
+      </div>
+      <div class="fdiv">📷 Photo</div>
+      <div class="photo-area" onclick="document.getElementById('entryPhotoFile').click()">
+        <input type="file" id="entryPhotoFile" accept="image/*" onchange="handlePhoto(this,'entryPrev','entryPlc','entryRm')" onclick="event.stopPropagation()" />
+        <div class="photo-prev-wrap">
+          <div class="photo-plc" id="entryPlc">👤</div>
+          <img class="photo-prev" id="entryPrev" src="" alt="" />
+          <div class="photo-txt"><strong>Click to upload / replace photo</strong>JPG, PNG or WebP</div>
+        </div>
+        <button class="photo-rm" id="entryRm" onclick="removePhoto('entryPhotoFile','entryPrev','entryPlc','entryRm');event.stopPropagation()">✕ Remove</button>
+      </div>
+      <div class="fdiv">📈 Metrics — Month to Date</div>
+      <div class="form-row">
+        <div class="fg"><label>Units Sold</label><input type="number" id="eUnits" min="0" placeholder="0" /></div>
+        <div class="fg"><label>Leases</label><input type="number" id="eLeases" min="0" placeholder="0" /></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Warranties</label><input type="number" id="eWarranties" min="0" placeholder="0" /></div>
+        <div class="fg"><label>VIP+ (this month)</label><input type="number" id="eVip" min="0" placeholder="0" /></div>
+      </div>
+      <div class="fdiv" style="color:var(--neg)">⚠️ Negative Metric</div>
+      <div class="neg-form">
+        <div class="fg"><label>Dealer Trades (MTD)</label><input type="number" id="eTrades" min="0" placeholder="0" /><div class="fhint">Higher = worse. Appears on the negative list.</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('entryModal')">Cancel</button>
+      <button class="btn btn-red" onclick="saveEntry()">Save Stats</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODAL: Import CSV
+═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="csvModal">
+  <div class="modal" style="width:580px">
+    <div class="modal-hdr" style="background:linear-gradient(135deg,#1b5e20,#2e7d32)"><h3>⬆️ Import CSV</h3><button class="close-btn" onclick="closeModal('csvModal')">×</button></div>
+    <div class="modal-body">
+      <div class="csv-mode-row">
+        <div class="csv-mode-btn active" id="csvModeAdd" onclick="setCsvMode('add')">➕ Add new<br><span style="font-weight:400;font-size:10px">Skip existing names</span></div>
+        <div class="csv-mode-btn" id="csvModeUpdate" onclick="setCsvMode('update')">🔄 Update<br><span style="font-weight:400;font-size:10px">Merge matching names</span></div>
+        <div class="csv-mode-btn" id="csvModeReplace" onclick="setCsvMode('replace')">♻️ Replace all<br><span style="font-weight:400;font-size:10px">Clear then import</span></div>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px">Expected CSV columns (header row required):</div>
+      <div class="csv-tpl">Name,Rooftop,Store,Units,Leases,Warranties,VIP,Trades
+John Smith,gm,Chevrolet,12,3,5,6,1
+Jane Doe,ford,,18,0,9,4,2</div>
+      <div style="margin-bottom:12px"><button class="btn btn-ghost btn-sm" onclick="downloadCsvTemplate()">⬇️ Download template</button></div>
+      <div class="csv-drop" id="csvDropZone">
+        <input type="file" id="csvFile" accept=".csv,text/csv" onchange="handleCsvFile(this.files[0])" onclick="event.stopPropagation()" />
+        <div style="font-size:32px;margin-bottom:6px">📄</div>
+        <div style="font-size:13px;color:var(--muted)"><strong style="color:var(--blue)">Click to choose CSV</strong> or drag &amp; drop</div>
+      </div>
+      <div class="csv-status" id="csvStatus"></div>
+      <div id="csvPreviewWrap" style="overflow-x:auto;max-height:180px;overflow-y:auto;margin-top:4px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('csvModal')">Cancel</button>
+      <button class="btn btn-green" id="csvImportBtn" onclick="importCsv()" disabled style="opacity:.5;cursor:not-allowed">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODAL: Reset Month
+═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal">
+    <div class="modal-hdr" style="background:linear-gradient(135deg,var(--red-dark),var(--red))"><h3>🔄 Reset Month</h3><button class="close-btn" onclick="closeModal('resetModal')">×</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;line-height:1.7;margin-bottom:10px">This clears all <strong>MTD stats to zero</strong> for the new month. Photos and rooftop assignments are kept.</p>
+      <p style="color:var(--neg);font-size:12px">⚠️ Cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('resetModal')">Cancel</button>
+      <button class="btn btn-red" onclick="resetMonth()">Yes, Reset Month</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCRIPT
+═══════════════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// HISTORICAL DATA (Jan – May 2026)
+// ─────────────────────────────────────────────────────────────────────────────
+const HISTORICAL = [{"label":"January 2026","rooftops":{"gm":[{"name":"Andy Steger","units":21,"leases":1,"warranties":17,"vip":6,"trades":2,"rooftop":"gm"},{"name":"Joe Griese","units":20,"leases":5,"warranties":13,"vip":3,"trades":4,"rooftop":"gm"},{"name":"Kraig Peterson","units":16,"leases":2,"warranties":7,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Kyle Mand","units":14,"leases":3,"warranties":10,"vip":1,"trades":2,"rooftop":"gm"},{"name":"Jeramie Lefeber","units":14,"leases":0,"warranties":10,"vip":6,"trades":1,"rooftop":"gm"},{"name":"Dan Dettmann","units":13,"leases":0,"warranties":9,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","units":11,"leases":1,"warranties":8,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","units":10,"leases":1,"warranties":5,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Michael Kaupe","units":8,"leases":1,"warranties":3,"vip":1,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","units":5,"leases":0,"warranties":5,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Dale Kuehl","units":1,"leases":1,"warranties":1,"vip":0,"trades":1,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","units":17,"leases":2,"warranties":7,"vip":2,"trades":1,"rooftop":"ford"},{"name":"Edgar Nieto","units":15,"leases":0,"warranties":4,"vip":1,"trades":1,"rooftop":"ford"},{"name":"Samuel Morelos","units":13,"leases":0,"warranties":5,"vip":3,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","units":11,"leases":0,"warranties":5,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Dave Witt","units":9,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","units":7,"leases":0,"warranties":3,"vip":1,"trades":0,"rooftop":"ford"},{"name":"David Olson","units":5,"leases":0,"warranties":1,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Hannah Schaefer","units":4,"leases":0,"warranties":0,"vip":0,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Logan Erickson","units":21,"leases":4,"warranties":10,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Sam Voss","units":19,"leases":3,"warranties":9,"vip":6,"trades":1,"rooftop":"mazda"},{"name":"Hannah Gresser","units":17,"leases":1,"warranties":9,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","units":17,"leases":3,"warranties":8,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"Stuart Powell","units":16,"leases":0,"warranties":3,"vip":1,"trades":0,"rooftop":"mazda"},{"name":"John Krug","units":15,"leases":0,"warranties":9,"vip":1,"trades":2,"rooftop":"mazda"},{"name":"Alex Kuehl","units":14,"leases":1,"warranties":8,"vip":2,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","units":26,"leases":0,"warranties":21,"vip":2,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","units":20,"leases":0,"warranties":11,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","units":17,"leases":0,"warranties":11,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","units":11,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","units":10,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Jack Taylor","units":10,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","units":10,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Holly Schultz","units":7,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"February 2026","rooftops":{"gm":[{"name":"Andy Steger","units":20,"leases":5,"warranties":13,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Joe Griese","units":19,"leases":2,"warranties":13,"vip":2,"trades":4,"rooftop":"gm"},{"name":"Kyle Mand","units":16,"leases":3,"warranties":15,"vip":3,"trades":2,"rooftop":"gm"},{"name":"Dan Dettmann","units":16,"leases":2,"warranties":12,"vip":7,"trades":0,"rooftop":"gm"},{"name":"Kraig Peterson","units":16,"leases":2,"warranties":12,"vip":6,"trades":1,"rooftop":"gm"},{"name":"Jeramie Lefeber","units":14,"leases":4,"warranties":13,"vip":6,"trades":1,"rooftop":"gm"},{"name":"Michael Kaupe","units":14,"leases":1,"warranties":7,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","units":12,"leases":0,"warranties":7,"vip":1,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","units":12,"leases":1,"warranties":8,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Mason Bauer","units":9,"leases":1,"warranties":5,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","units":8,"leases":1,"warranties":4,"vip":2,"trades":0,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","units":19,"leases":3,"warranties":12,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Samuel Morelos","units":14,"leases":0,"warranties":8,"vip":4,"trades":0,"rooftop":"ford"},{"name":"David Olson","units":14,"leases":2,"warranties":4,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Edgar Nieto","units":13,"leases":1,"warranties":4,"vip":3,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","units":10,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","units":7,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Dave Witt","units":7,"leases":1,"warranties":4,"vip":0,"trades":1,"rooftop":"ford"},{"name":"Hannah Schaefer","units":2,"leases":0,"warranties":1,"vip":0,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Logan Erickson","units":20,"leases":3,"warranties":5,"vip":0,"trades":1,"rooftop":"mazda"},{"name":"Alex Kuehl","units":20,"leases":1,"warranties":5,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","units":20,"leases":2,"warranties":5,"vip":4,"trades":0,"rooftop":"mazda"},{"name":"Sam Voss","units":16,"leases":2,"warranties":9,"vip":4,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","units":15,"leases":1,"warranties":7,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"John Krug","units":15,"leases":1,"warranties":8,"vip":1,"trades":1,"rooftop":"mazda"},{"name":"Collin Mcdowell","units":10,"leases":0,"warranties":4,"vip":1,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","units":32,"leases":0,"warranties":24,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","units":19,"leases":0,"warranties":13,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","units":18,"leases":0,"warranties":9,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","units":13,"leases":0,"warranties":9,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","units":13,"leases":0,"warranties":6,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Jack Taylor","units":11,"leases":0,"warranties":5,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","units":10,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Holly Schultz","units":2,"leases":0,"warranties":2,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"March 2026","rooftops":{"gm":[{"name":"Joe Griese","units":20,"leases":1,"warranties":10,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Andy Steger","units":20,"leases":4,"warranties":15,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Kraig Peterson","units":20,"leases":5,"warranties":15,"vip":8,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","units":20,"leases":1,"warranties":15,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Kyle Mand","units":19,"leases":2,"warranties":10,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Jeramie Lefeber","units":14,"leases":2,"warranties":6,"vip":7,"trades":0,"rooftop":"gm"},{"name":"Mason Bauer","units":14,"leases":0,"warranties":10,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Dan Dettmann","units":12,"leases":3,"warranties":5,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","units":11,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Michael Kaupe","units":9,"leases":1,"warranties":7,"vip":4,"trades":1,"rooftop":"gm"},{"name":"Lindsey Zangl","units":5,"leases":0,"warranties":2,"vip":0,"trades":1,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","units":26,"leases":3,"warranties":10,"vip":3,"trades":1,"rooftop":"ford"},{"name":"Dave Witt","units":20,"leases":3,"warranties":10,"vip":1,"trades":3,"rooftop":"ford"},{"name":"David Olson","units":20,"leases":1,"warranties":10,"vip":3,"trades":1,"rooftop":"ford"},{"name":"Jafar Nikkhah","units":18,"leases":2,"warranties":10,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Samuel Morelos","units":16,"leases":0,"warranties":4,"vip":5,"trades":0,"rooftop":"ford"},{"name":"Edgar Nieto","units":16,"leases":2,"warranties":11,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","units":9,"leases":0,"warranties":7,"vip":1,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Alex Kuehl","units":24,"leases":3,"warranties":13,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"Sam Voss","units":24,"leases":2,"warranties":14,"vip":6,"trades":0,"rooftop":"mazda"},{"name":"Logan Erickson","units":23,"leases":0,"warranties":13,"vip":3,"trades":2,"rooftop":"mazda"},{"name":"Jarrod Hart","units":19,"leases":2,"warranties":11,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","units":16,"leases":3,"warranties":8,"vip":1,"trades":0,"rooftop":"mazda"},{"name":"John Krug","units":14,"leases":2,"warranties":5,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Collin Mcdowell","units":10,"leases":0,"warranties":8,"vip":2,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","units":41,"leases":0,"warranties":28,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","units":19,"leases":0,"warranties":12,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","units":16,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","units":14,"leases":0,"warranties":10,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","units":13,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","units":11,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Jack Taylor","units":2,"leases":0,"warranties":2,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"April 2026","rooftops":{"gm":[{"name":"Kyle Mand","units":22,"leases":3,"warranties":15,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Joe Griese","units":19,"leases":5,"warranties":9,"vip":4,"trades":1,"rooftop":"gm"},{"name":"Kraig Peterson","units":17,"leases":2,"warranties":13,"vip":2,"trades":2,"rooftop":"gm"},{"name":"Mason Bauer","units":16,"leases":1,"warranties":10,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Andy Steger","units":14,"leases":2,"warranties":12,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Dan Dettmann","units":12,"leases":1,"warranties":9,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Michael Kaupe","units":12,"leases":0,"warranties":10,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","units":11,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"gm"},{"name":"Jeramie Lefeber","units":10,"leases":2,"warranties":7,"vip":4,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","units":6,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","units":6,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"gm"}],"ford":[{"name":"David Olson","units":16,"leases":0,"warranties":6,"vip":5,"trades":1,"rooftop":"ford"},{"name":"Joe Wege","units":14,"leases":4,"warranties":12,"vip":7,"trades":3,"rooftop":"ford"},{"name":"Samuel Morelos","units":13,"leases":0,"warranties":7,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Nick Kinsman","units":11,"leases":0,"warranties":2,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Edgar Nieto","units":10,"leases":0,"warranties":5,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","units":9,"leases":0,"warranties":4,"vip":4,"trades":1,"rooftop":"ford"},{"name":"Dave Witt","units":8,"leases":3,"warranties":7,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","units":6,"leases":0,"warranties":2,"vip":1,"trades":1,"rooftop":"ford"},{"name":"Anh Tran","units":6,"leases":0,"warranties":3,"vip":2,"trades":1,"rooftop":"ford"}],"mazda":[{"name":"Logan Erickson","units":27,"leases":2,"warranties":13,"vip":5,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","units":24,"leases":2,"warranties":11,"vip":4,"trades":1,"rooftop":"mazda"},{"name":"Sam Voss","units":23,"leases":3,"warranties":10,"vip":6,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","units":21,"leases":1,"warranties":9,"vip":3,"trades":0,"rooftop":"mazda"},{"name":"Alex Kuehl","units":18,"leases":2,"warranties":8,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"John Krug","units":18,"leases":1,"warranties":8,"vip":3,"trades":0,"rooftop":"mazda"},{"name":"Collin Mcdowell","units":17,"leases":0,"warranties":11,"vip":3,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","units":41,"leases":0,"warranties":26,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","units":22,"leases":0,"warranties":10,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","units":22,"leases":0,"warranties":14,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","units":21,"leases":0,"warranties":12,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","units":14,"leases":0,"warranties":9,"vip":1,"trades":1,"rooftop":"budget"},{"name":"Mark Peters","units":12,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"May 2026","rooftops":{"gm":[{"name":"Kraig Peterson","units":22,"leases":2,"warranties":17,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Andy Steger","units":20,"leases":3,"warranties":13,"vip":7,"trades":1,"rooftop":"gm"},{"name":"Kyle Mand","units":19,"leases":2,"warranties":11,"vip":5,"trades":2,"rooftop":"gm"},{"name":"Dan Dettmann","units":16,"leases":1,"warranties":8,"vip":2,"trades":1,"rooftop":"gm"},{"name":"Jeramie Lefeber","units":16,"leases":3,"warranties":8,"vip":6,"trades":2,"rooftop":"gm"},{"name":"Michael Kaupe","units":15,"leases":2,"warranties":9,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","units":15,"leases":0,"warranties":11,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Joe Griese","units":14,"leases":3,"warranties":13,"vip":5,"trades":1,"rooftop":"gm"},{"name":"Mason Bauer","units":13,"leases":0,"warranties":9,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","units":12,"leases":0,"warranties":5,"vip":3,"trades":2,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","units":20,"leases":1,"warranties":13,"vip":10,"trades":2,"rooftop":"ford"},{"name":"Edgar Nieto","units":18,"leases":0,"warranties":5,"vip":6,"trades":0,"rooftop":"ford"},{"name":"Samuel Morelos","units":15,"leases":0,"warranties":11,"vip":2,"trades":1,"rooftop":"ford"},{"name":"David Olson","units":13,"leases":2,"warranties":8,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Nick Kinsman","units":10,"leases":0,"warranties":3,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Anh Tran","units":9,"leases":0,"warranties":4,"vip":3,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","units":9,"leases":1,"warranties":2,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Dave Witt","units":7,"leases":0,"warranties":1,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","units":6,"leases":1,"warranties":3,"vip":3,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Sam Voss","units":21,"leases":2,"warranties":8,"vip":0,"trades":0,"rooftop":"mazda"},{"name":"Logan Erickson","units":20,"leases":2,"warranties":14,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"Collin Mcdowell","units":20,"leases":0,"warranties":7,"vip":3,"trades":0,"rooftop":"mazda"},{"name":"Alex Kuehl","units":18,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","units":18,"leases":4,"warranties":6,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","units":18,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"John Krug","units":16,"leases":1,"warranties":5,"vip":1,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","units":41,"leases":0,"warranties":26,"vip":2,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","units":24,"leases":0,"warranties":11,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","units":21,"leases":0,"warranties":14,"vip":2,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","units":14,"leases":0,"warranties":7,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","units":14,"leases":0,"warranties":7,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","units":13,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Aaron Koenig","units":1,"leases":0,"warranties":0,"vip":0,"trades":0,"rooftop":"budget"}]}}];
+
+
+const JUNE_SEED = [
+  {id:'seed_joe_griese',name:'Joe Griese',units:4,leases:1,warranties:1,vip:1,trades:1,rooftop:'gm'},
+  {id:'seed_kyle_mand',name:'Kyle Mand',units:3,leases:1,warranties:1,vip:0,trades:0,rooftop:'gm'},
+  {id:'seed_kraig_peterson',name:'Kraig Peterson',units:3,leases:2,warranties:2,vip:0,trades:0,rooftop:'gm'},
+  {id:'seed_lindsey_zangl',name:'Lindsey Zangl',units:2,leases:0,warranties:2,vip:0,trades:1,rooftop:'gm'},
+  {id:'seed_dan_dettmann',name:'Dan Dettmann',units:2,leases:0,warranties:2,vip:1,trades:1,rooftop:'gm'},
+  {id:'seed_andy_steger',name:'Andy Steger',units:1,leases:1,warranties:0,vip:0,trades:0,rooftop:'gm'},
+  {id:'seed_michael_kaupe',name:'Michael Kaupe',units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'gm'},
+  {id:'seed_mason_bauer',name:'Mason Bauer',units:1,leases:0,warranties:0,vip:0,trades:1,rooftop:'gm'},
+  {id:'seed_jeramie_lefeber',name:'Jeramie Lefeber',units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'gm'},
+  {id:'seed_matt_claus',name:'Matt Claus',units:2,leases:0,warranties:1,vip:0,trades:0,rooftop:'ford'},
+  {id:'seed_nick_kinsman',name:'Nick Kinsman',units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'ford'},
+  {id:'seed_jafar_nikkhah',name:'Jafar Nikkhah',units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'ford'},
+  {id:'seed_joe_wege',name:'Joe Wege',units:1,leases:0,warranties:1,vip:1,trades:0,rooftop:'ford'},
+  {id:'seed_anh_tran',name:'Anh Tran',units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'ford'},
+  {id:'seed_logan_erickson',name:'Logan Erickson',units:3,leases:1,warranties:3,vip:0,trades:0,rooftop:'mazda'},
+  {id:'seed_alex_kuehl',name:'Alex Kuehl',units:2,leases:0,warranties:1,vip:0,trades:0,rooftop:'mazda'},
+  {id:'seed_hannah_gresser',name:'Hannah Gresser',units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'mazda'},
+  {id:'seed_john_krug',name:'John Krug',units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'mazda'},
+  {id:'seed_tony_deich',name:'Tony Deich',units:5,leases:0,warranties:4,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_stephanie_huebner',name:'Stephanie Huebner',units:3,leases:0,warranties:2,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_alex_marschall',name:'Alex Marschall',units:3,leases:0,warranties:2,vip:1,trades:0,rooftop:'budget'},
+  {id:'seed_beau_reinhold',name:'Beau Reinhold',units:2,leases:0,warranties:2,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_zac_schultz',name:'Zac Schultz',units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_aaron_koenig',name:'Aaron Koenig',units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_savannah_maczuzak',name:'Savannah Maczuzak',units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'budget'},
+];
+const HIST_TAB_MAP = { jan:0, feb:1, mar:2, apr:3, may:4 };
+const RT_LABELS = { gm:'GM', ford:'Ford', mazda:'Mazda', budget:'Budget Center' };
+const RT_ORDER  = ['gm','ford','mazda','budget'];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'holiday_lb_v5';
+const PHOTOS_KEY  = 'holiday_lb_photos_v4'; // keep same so photos survive
+
+let state = loadState();
+let photoStore = loadPhotos();
+let currentTab = 'current';
+let sortStates = { top10:{col:'units',dir:'desc'}, gm:{col:'units',dir:'desc'}, ford:{col:'units',dir:'desc'}, mazda:{col:'units',dir:'desc'}, budget:{col:'units',dir:'desc'}, neg:{col:'trades',dir:'desc'} };
+let csvParsed = null, csvMode = 'add';
+
+function defState() {
+  return { people:[], lastUpdated:null, monthLabel:'June 2026', seeded:'june2026' };
+}
+function loadState() {
+  try {
+    const r = localStorage.getItem(STORAGE_KEY);
+    if (r) {
+      const parsed = { ...defState(), ...JSON.parse(r) };
+      // Ensure all people have a rooftop; default to gm if missing
+      parsed.people = parsed.people.map(p => ({ ...p, rooftop: p.rooftop || 'gm' }));
+      return parsed;
+    }
+    // Fresh install — seed June with proper rooftop assignments
+    return { ...defState(), people: JUNE_SEED };
+  } catch { return { ...defState(), people: JUNE_SEED }; }
+}
+function loadPhotos() {
+  try {
+    // Try new key first, then old
+    const r = localStorage.getItem(PHOTOS_KEY) || localStorage.getItem('holiday_leaderboard_photos_v3');
+    return r ? JSON.parse(r) : {};
+  } catch { return {}; }
+}
+function saveState() {
+  state.lastUpdated = new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(PHOTOS_KEY, JSON.stringify(photoStore));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function curMonthLabel() {
+  return new Date().toLocaleString('en-US', { month:'long', year:'numeric' });
+}
+function initials(name) {
+  return name.trim().split(/\s+/).map(w=>w[0].toUpperCase()).slice(0,2).join('');
+}
+function colorFor(name) {
+  const cs=['#003087','#1a4ba0','#a30000','#CC0000','#004d80','#5c3566','#1565c0','#006064'];
+  let h=0; for(const c of name) h=(h*31+c.charCodeAt(0))&0xffffffff;
+  return cs[Math.abs(h)%cs.length];
+}
+function rnkHtml(r) {
+  if(r===1) return `<span class="rnk rnk-1">🥇</span>`;
+  if(r===2) return `<span class="rnk rnk-2">🥈</span>`;
+  if(r===3) return `<span class="rnk rnk-3">🥉</span>`;
+  return `<span class="rnk rnk-other">${r}</span>`;
+}
+function avatarHtml(p) {
+  const nameKey = (p.name||"").toLowerCase();
+  const photo = photoStore[p.id] || photoStore[p.name] || photoStore[nameKey];
+  if (photo) return `<img class="avatar" src="${photo}" alt="${p.name}" />`;
+  return `<div class="avatar-init" style="background:${colorFor(p.name)}">${initials(p.name)}</div>`;
+}
+function toast(msg, err) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.background = err ? 'var(--neg)' : 'var(--success)';
+  t.style.display = 'block'; setTimeout(()=>t.style.display='none', 3000);
+}
+function n(v) { return typeof v==='number' ? v : 0; }
+function sortPeople(people, col, dir) {
+  return [...people].sort((a,b)=> dir==='desc' ? n(b[col])-n(a[col]) : n(a[col])-n(b[col]));
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA RETRIEVAL
+// ─────────────────────────────────────────────────────────────────────────────
+function getViewPeople(tabId) {
+  if (tabId === 'current') return state.people;
+  if (tabId === 'ytd') return computeYTD();
+  const idx = HIST_TAB_MAP[tabId];
+  if (idx === undefined) return [];
+  const m = HISTORICAL[idx];
+  return Object.values(m.rooftops).flat();
+}
+
+function computeYTD() {
+  const map = {};
+  // Historical months
+  HISTORICAL.forEach(m => {
+    Object.values(m.rooftops).flat().forEach(p => {
+      const k = p.name.toLowerCase().trim();
+      if (!map[k]) map[k] = { ...p, id: p.name, units:0, leases:0, warranties:0, vip:0, trades:0 };
+      map[k].units     += n(p.units);
+      map[k].leases    += n(p.leases);
+      map[k].warranties+= n(p.warranties);
+      map[k].vip       += n(p.vip);
+      map[k].trades    += n(p.trades);
+    });
+  });
+  // Current month
+  state.people.forEach(p => {
+    const k = p.name.toLowerCase().trim();
+    if (!map[k]) map[k] = { ...p, units:0, leases:0, warranties:0, vip:0, trades:0 };
+    map[k].units     += n(p.units);
+    map[k].leases    += n(p.leases);
+    map[k].warranties+= n(p.warranties);
+    map[k].vip       += n(p.vip);
+    map[k].trades    += n(p.trades);
+    // Preserve id for photos
+    if (p.id) map[k].id = p.id;
+  });
+  return Object.values(map);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TAB SWITCHING
+// ─────────────────────────────────────────────────────────────────────────────
+function switchTab(tabId) {
+  currentTab = tabId;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+  renderView();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+function renderView() {
+  const isCurrent = currentTab === 'current';
+  const people = getViewPeople(currentTab);
+  const histLabel = currentTab !== 'current' && currentTab !== 'ytd'
+    ? HISTORICAL[HIST_TAB_MAP[currentTab]]?.label : null;
+
+  // Header badges
+  if (isCurrent) {
+    document.getElementById('monthBadge').textContent = `📅 ${state.monthLabel} — MTD`;
+    if (state.lastUpdated) {
+      const d = new Date(state.lastUpdated);
+      document.getElementById('lastUpdated').textContent =
+        `Last updated: ${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+    } else { document.getElementById('lastUpdated').textContent = ''; }
+  } else if (currentTab === 'ytd') {
+    document.getElementById('monthBadge').textContent = '📊 Year to Date 2026';
+    document.getElementById('lastUpdated').textContent = 'Jan – Jun 2026 (all months combined)';
+  } else {
+    document.getElementById('monthBadge').textContent = `📅 ${histLabel}`;
+    document.getElementById('lastUpdated').textContent = 'Historical — read only';
+  }
+
+  // Summary
+  renderSummary(people);
+
+  // Main content
+  let html = '';
+
+  // Action bar (current only)
+  if (isCurrent) {
+    html += `<div class="action-bar">
+      <span class="action-bar-title">${state.monthLabel} — Month to Date</span>
+      <button class="btn btn-ghost btn-sm" onclick="openResetModal()">🔄 Reset Month</button>
+      <button class="btn btn-green btn-sm" onclick="openCsvModal()">⬆️ Import CSV</button>
+      <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Add Person</button>
+      <button class="btn btn-red btn-sm" onclick="openEntryModal()">📋 Enter Stats</button>
+    </div>`;
+  } else if (!isCurrent) {
+    const lbl = currentTab === 'ytd' ? 'Year to Date 2026 — Jan through Jun' : `${histLabel} — read only`;
+    html += `<div class="ro-banner">📖 ${lbl}</div>`;
+  }
+
+  // Top 10
+  html += renderTop10Section(people);
+
+  // Rooftop sections
+  RT_ORDER.forEach(rt => {
+    const rtPeople = people.filter(p => p.rooftop === rt);
+    if (rtPeople.length > 0) {
+      html += renderRooftopSection(rt, rtPeople, isCurrent);
+    }
+  });
+
+  // Negative list
+  html += renderNegSection(people, isCurrent);
+
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SUMMARY CARDS
+// ─────────────────────────────────────────────────────────────────────────────
+function renderSummary(people) {
+  document.getElementById('sc-units').textContent     = people.reduce((s,p)=>s+n(p.units),0);
+  document.getElementById('sc-leases').textContent    = people.reduce((s,p)=>s+n(p.leases),0);
+  document.getElementById('sc-warranties').textContent= people.reduce((s,p)=>s+n(p.warranties),0);
+  document.getElementById('sc-vip').textContent       = people.reduce((s,p)=>s+n(p.vip),0);
+  document.getElementById('sc-trades').textContent    = people.reduce((s,p)=>s+n(p.trades),0);
+  document.getElementById('sc-people').textContent    = people.length;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TOP 10
+// ─────────────────────────────────────────────────────────────────────────────
+function renderTop10Section(people) {
+  const ss = sortStates.top10;
+  const sorted = sortPeople(people, ss.col, ss.dir).slice(0, 10);
+  const maxU = Math.max(1, ...sorted.map(p=>n(p.units)));
+
+  let rows = '';
+  sorted.forEach((p, i) => {
+    const pct = Math.round(n(p.units)/maxU*100);
+    rows += `<tr>
+      <td class="tc">${rnkHtml(i+1)}</td>
+      <td><div class="nc-inner">${avatarHtml(p)}<div><div class="nc-name">${p.name}</div>
+        <span class="rt-badge rt-${p.rooftop}" style="margin-top:2px">${RT_LABELS[p.rooftop]||p.rooftop}</span></div></div></td>
+      <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div><span class="bar-num">${n(p.units)}</span></div></td>
+      <td class="num">${n(p.leases)}</td>
+      <td class="num">${n(p.warranties)}</td>
+      <td class="tc">${n(p.vip)>0?`<span class="vip-val">${n(p.vip)}</span>`:`<span class="vip-zero">—</span>`}</td>
+    </tr>`;
+  });
+
+  if (!rows) rows = `<tr><td colspan="6"><div class="empty"><div class="ei">🏁</div><p>No data yet.</p></div></td></tr>`;
+
+  return `<div class="section-hdr">
+    <div class="section-title"><div class="accent accent-top10"></div>🏆 Dealership Top 10 — All Rooftops</div>
+    <span class="rt-badge rt-top10">Overall</span>
+  </div>
+  <div class="table-wrap" style="margin-bottom:20px">
+    <table class="tbl-top10">
+      <thead><tr>
+        <th class="tc">Rank</th>
+        <th>Salesperson</th>
+        <th class="tc sortable ${ss.col==='units'?'sort-'+ss.dir:''}" onclick="sortTable('top10','units')">Units</th>
+        <th class="tc sortable ${ss.col==='leases'?'sort-'+ss.dir:''}" onclick="sortTable('top10','leases')">Leases</th>
+        <th class="tc sortable ${ss.col==='warranties'?'sort-'+ss.dir:''}" onclick="sortTable('top10','warranties')">Warranties</th>
+        <th class="tc sortable ${ss.col==='vip'?'sort-'+ss.dir:''}" onclick="sortTable('top10','vip')">VIP+</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ROOFTOP SECTION
+// ─────────────────────────────────────────────────────────────────────────────
+function renderRooftopSection(rt, people, isEditable) {
+  const ss = sortStates[rt] || { col:'units', dir:'desc' };
+  const sorted = sortPeople(people, ss.col, ss.dir);
+  const maxU = Math.max(1, ...sorted.map(p=>n(p.units)));
+
+  let rows = '';
+  sorted.forEach((p, i) => {
+    const pct = Math.round(n(p.units)/maxU*100);
+    const acts = isEditable
+      ? `<td class="act"><button class="btn btn-ghost btn-sm" onclick="openEditEntry('${p.id}')">✏️</button> <button class="btn btn-danger btn-sm" onclick="delPerson('${p.id}')">✕</button></td>`
+      : '';
+    rows += `<tr>
+      <td class="tc">${rnkHtml(i+1)}</td>
+      <td><div class="nc-inner">${avatarHtml(p)}<div class="nc-name">${p.name}${p.store?`<div class="nc-sub">${p.store}</div>`:''}</div></div></td>
+      <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div><span class="bar-num">${n(p.units)}</span></div></td>
+      <td class="num">${n(p.leases)}</td>
+      <td class="num">${n(p.warranties)}</td>
+      <td class="tc">${n(p.vip)>0?`<span class="vip-val">${n(p.vip)}</span>`:`<span class="vip-zero">—</span>`}</td>
+      ${acts}
+    </tr>`;
+  });
+
+  const actsTh = isEditable ? '<th class="tc">Actions</th>' : '';
+  return `<div class="section-hdr">
+    <div class="section-title"><div class="accent accent-${rt}"></div>${RT_LABELS[rt]}</div>
+    <span class="rt-badge rt-${rt}">${people.length} people</span>
+  </div>
+  <div class="table-wrap" style="margin-bottom:20px">
+    <table class="tbl-${rt}">
+      <thead><tr>
+        <th class="tc">Rank</th><th>Salesperson</th>
+        <th class="tc sortable ${ss.col==='units'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','units')">Units</th>
+        <th class="tc sortable ${ss.col==='leases'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','leases')">Leases</th>
+        <th class="tc sortable ${ss.col==='warranties'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','warranties')">Warranties</th>
+        <th class="tc sortable ${ss.col==='vip'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','vip')">VIP+</th>
+        ${actsTh}
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NEGATIVE LIST
+// ─────────────────────────────────────────────────────────────────────────────
+function renderNegSection(people, isEditable) {
+  const withTrades = people.filter(p=>n(p.trades)>0);
+  let rows = '';
+  if (withTrades.length) {
+    sortPeople(withTrades,'trades','desc').forEach((p,i) => {
+      const acts = isEditable
+        ? `<td class="act"><button class="btn btn-ghost btn-sm" onclick="openEditEntry('${p.id}')">✏️</button></td>`
+        : '';
+      rows += `<tr>
+        <td class="tc">${rnkHtml(i+1)}</td>
+        <td><div class="nc-inner">${avatarHtml(p)}<div class="nc-name">${p.name}</div></div></td>
+        <td class="tc"><span class="rt-badge rt-${p.rooftop}">${RT_LABELS[p.rooftop]||p.rooftop}</span></td>
+        <td class="neg-num">${n(p.trades)}</td>
+        ${acts}
+      </tr>`;
+    });
+  } else {
+    rows = `<tr><td colspan="5"><div class="empty"><div class="ei">✅</div><p>No dealer trades this period. Great job!</p></div></td></tr>`;
+  }
+  const actsTh = isEditable ? '<th class="tc">Actions</th>' : '';
+  return `<div class="section-hdr">
+    <div class="section-title" style="color:var(--neg)"><div class="accent" style="background:var(--neg)"></div>⚠️ Dealer Trades — Negative Metric</div>
+  </div>
+  <div class="table-wrap tbl-neg" style="margin-bottom:28px">
+    <table>
+      <thead><tr>
+        <th class="tc">Rank</th><th>Salesperson</th><th class="tc">Rooftop</th>
+        <th class="tc">Dealer Trades</th>${actsTh}
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SORT
+// ─────────────────────────────────────────────────────────────────────────────
+function sortTable(tblKey, col) {
+  const ss = sortStates[tblKey] || { col:'units', dir:'desc' };
+  sortStates[tblKey] = { col, dir: ss.col===col && ss.dir==='desc' ? 'asc' : 'desc' };
+  renderView();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD PERSON
+// ─────────────────────────────────────────────────────────────────────────────
+function openAddModal() {
+  document.getElementById('newName').value = '';
+  document.getElementById('newRooftop').value = 'gm';
+  document.getElementById('newStore').value = '';
+  resetPhotoUI('addPhotoFile','addPrev','addPlc','addRm');
+  openModal('addModal');
+}
+function addPerson() {
+  const name = document.getElementById('newName').value.trim();
+  if (!name) { alert('Please enter a name.'); return; }
+  if (state.people.find(p=>p.name.toLowerCase()===name.toLowerCase())) { alert('That name already exists.'); return; }
+  const id = Date.now().toString();
+  const photo = getPhotoData('addPrev');
+  if (photo) { photoStore[id] = photo; photoStore[name.toLowerCase()] = photo; }
+  state.people.push({ id, name, rooftop: document.getElementById('newRooftop').value, store: document.getElementById('newStore').value, units:0, leases:0, warranties:0, vip:0, trades:0 });
+  saveState(); renderView(); closeModal('addModal');
+  toast(`✓ ${name} added!`);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENTRY MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+function openEntryModal() {
+  populateEntrySelect('');
+  clearEntryFields();
+  resetPhotoUI('entryPhotoFile','entryPrev','entryPlc','entryRm');
+  openModal('entryModal');
+}
+function openEditEntry(id) {
+  populateEntrySelect(id);
+  loadEntryFields(id);
+  openModal('entryModal');
+}
+function populateEntrySelect(selId) {
+  const sel = document.getElementById('entryPerson');
+  sel.innerHTML = '<option value="">— Select —</option>' +
+    state.people.map(p=>`<option value="${p.id}" ${p.id===selId?'selected':''}>${p.name} (${RT_LABELS[p.rooftop]||p.rooftop})</option>`).join('');
+}
+function loadEntryFields(id) {
+  const p = state.people.find(x=>x.id===id);
+  if (!p) { clearEntryFields(); resetPhotoUI('entryPhotoFile','entryPrev','entryPlc','entryRm'); return; }
+  document.getElementById('eUnits').value      = n(p.units);
+  document.getElementById('eLeases').value     = n(p.leases);
+  document.getElementById('eWarranties').value = n(p.warranties);
+  document.getElementById('eVip').value        = n(p.vip);
+  document.getElementById('eTrades').value     = n(p.trades);
+  resetPhotoUI('entryPhotoFile','entryPrev','entryPlc','entryRm');
+  if (photoStore[id]) loadPhotoUI(photoStore[id],'entryPrev','entryPlc','entryRm');
+}
+function clearEntryFields() {
+  ['eUnits','eLeases','eWarranties','eVip','eTrades'].forEach(id=>document.getElementById(id).value='');
+}
+function saveEntry() {
+  const id = document.getElementById('entryPerson').value;
+  if (!id) { alert('Please select a salesperson.'); return; }
+  const p = state.people.find(x=>x.id===id);
+  if (!p) return;
+  p.units      = parseInt(document.getElementById('eUnits').value)||0;
+  p.leases     = parseInt(document.getElementById('eLeases').value)||0;
+  p.warranties = parseInt(document.getElementById('eWarranties').value)||0;
+  p.vip        = parseInt(document.getElementById('eVip').value)||0;
+  p.trades     = parseInt(document.getElementById('eTrades').value)||0;
+  const photo  = getPhotoData('entryPrev');
+  if (photo) { photoStore[id] = photo; photoStore[(p.name||"").toLowerCase()] = photo; } else { delete photoStore[id]; delete photoStore[(p.name||"").toLowerCase()]; }
+  saveState(); renderView(); closeModal('entryModal');
+  toast(`✓ Stats updated for ${p.name}`);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DELETE
+// ─────────────────────────────────────────────────────────────────────────────
+function delPerson(id) {
+  const p = state.people.find(x=>x.id===id);
+  if (!p || !confirm(`Remove ${p.name}?`)) return;
+  state.people = state.people.filter(x=>x.id!==id);
+  delete photoStore[id];
+  saveState(); renderView();
+  toast(`${p.name} removed.`);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RESET MONTH
+// ─────────────────────────────────────────────────────────────────────────────
+function openResetModal() { openModal('resetModal'); }
+function resetMonth() {
+  state.people.forEach(p=>{ p.units=0; p.leases=0; p.warranties=0; p.vip=0; p.trades=0; });
+  state.monthLabel = curMonthLabel();
+  saveState(); renderView(); closeModal('resetModal');
+  toast('✓ Month reset — all MTD stats cleared.');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PHOTO HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function handlePhoto(input, prevId, plcId, rmId) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById(prevId);
+    img.src = e.target.result; img.style.display = 'block';
+    document.getElementById(plcId).style.display = 'none';
+    document.getElementById(rmId).style.display  = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+function removePhoto(fileId, prevId, plcId, rmId) {
+  document.getElementById(fileId).value = '';
+  document.getElementById(prevId).src = ''; document.getElementById(prevId).style.display = 'none';
+  document.getElementById(plcId).style.display = 'flex';
+  document.getElementById(rmId).style.display  = 'none';
+}
+function resetPhotoUI(fileId, prevId, plcId, rmId) { removePhoto(fileId, prevId, plcId, rmId); }
+function loadPhotoUI(data, prevId, plcId, rmId) {
+  const img = document.getElementById(prevId);
+  img.src = data; img.style.display = 'block';
+  document.getElementById(plcId).style.display = 'none';
+  document.getElementById(rmId).style.display  = 'block';
+}
+function getPhotoData(prevId) {
+  const img = document.getElementById(prevId);
+  return img && img.style.display !== 'none' && img.src ? img.src : null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CSV IMPORT
+// ─────────────────────────────────────────────────────────────────────────────
+function openCsvModal() {
+  csvParsed = null;
+  document.getElementById('csvFile').value = '';
+  document.getElementById('csvStatus').textContent = '';
+  document.getElementById('csvPreviewWrap').innerHTML = '';
+  const btn = document.getElementById('csvImportBtn');
+  btn.disabled=true; btn.style.opacity='.5'; btn.style.cursor='not-allowed';
+  setCsvMode('add');
+  openModal('csvModal');
+}
+function setCsvMode(m) {
+  csvMode = m;
+  ['add','update','replace'].forEach(k => {
+    const id = 'csvMode'+k[0].toUpperCase()+k.slice(1);
+    document.getElementById(id).classList.toggle('active', k===m);
+  });
+}
+function handleCsvFile(file) {
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => parseCsvText(e.target.result);
+  r.readAsText(file);
+}
+function parseCsvText(text) {
+  const lines = text.trim().split(/\r?\n/).filter(l=>l.trim());
+  if (lines.length < 2) { setCsvStatus('Need a header row and at least one data row.', true); return; }
+  const hdr = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/[^a-z]/g,''));
+  const nameI = hdr.findIndex(h=>h==='name');
+  const rtI   = hdr.findIndex(h=>['rooftop','rt','store','location','department'].includes(h));
+  const stI   = hdr.findIndex(h=>h==='store'||h==='detail');
+  const uI    = hdr.findIndex(h=>h==='units');
+  const lI    = hdr.findIndex(h=>h==='leases');
+  const wI    = hdr.findIndex(h=>['warranties','warranty','war'].includes(h));
+  const vI    = hdr.findIndex(h=>['vip','viplus','vipplus'].includes(h));
+  const tI    = hdr.findIndex(h=>['trades','dealertrades','dt'].includes(h));
+  if (nameI===-1) { setCsvStatus('"Name" column is required.', true); return; }
+  const RT_NORM = { gm:'gm', ford:'ford', mazda:'mazda', budget:'budget', 'budget center':'budget', 'chevy':'gm', 'chevrolet':'gm', 'buick':'gm', 'gmc':'gm', 'cadillac':'gm', 'pre-owned':'budget', 'preowned':'budget' };
+  const rows = [];
+  for (let i=1; i<lines.length; i++) {
+    const cols = splitCsvLine(lines[i]);
+    const name = cols[nameI]?.trim(); if (!name) continue;
+    const rtRaw = rtI>-1 ? (cols[rtI]||'').trim().toLowerCase() : '';
+    const rt = RT_NORM[rtRaw] || 'gm';
+    rows.push({ name, rooftop:rt, store: stI>-1?(cols[stI]||'').trim():'',
+      units: uI>-1?parseInt(cols[uI])||0:0, leases: lI>-1?parseInt(cols[lI])||0:0,
+      warranties: wI>-1?parseInt(cols[wI])||0:0, vip: vI>-1?parseInt(cols[vI])||0:0,
+      trades: tI>-1?parseInt(cols[tI])||0:0 });
+  }
+  if (!rows.length) { setCsvStatus('No valid rows found.', true); return; }
+  csvParsed = rows;
+  setCsvStatus(`✓ ${rows.length} row${rows.length===1?'':'s'} ready to import.`, false);
+  renderCsvPreview(rows);
+  const btn = document.getElementById('csvImportBtn');
+  btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer';
+}
+function splitCsvLine(line) {
+  const res=[]; let cur='', inQ=false;
+  for (const ch of line) {
+    if (ch==='"') inQ=!inQ;
+    else if (ch===',' && !inQ) { res.push(cur); cur=''; }
+    else cur+=ch;
+  }
+  res.push(cur); return res;
+}
+function setCsvStatus(msg, err) {
+  const el = document.getElementById('csvStatus');
+  el.textContent=msg; el.className='csv-status '+(err?'err':'ok');
+}
+function renderCsvPreview(rows) {
+  const prev = rows.slice(0,6);
+  document.getElementById('csvPreviewWrap').innerHTML =
+    `<table class="csv-prev-tbl"><thead><tr><th>Name</th><th>Rooftop</th><th>Units</th><th>Leases</th><th>War</th><th>VIP+</th><th>Trades</th></tr></thead>
+    <tbody>${prev.map(r=>`<tr><td>${r.name}</td><td>${r.rooftop}</td><td>${r.units}</td><td>${r.leases}</td><td>${r.warranties}</td><td>${r.vip}</td><td>${r.trades}</td></tr>`).join('')}
+    ${rows.length>6?`<tr><td colspan="7" style="text-align:center;font-style:italic;color:var(--muted)">… and ${rows.length-6} more</td></tr>`:''}</tbody></table>`;
+}
+function importCsv() {
+  if (!csvParsed?.length) return;
+  if (csvMode==='replace') { state.people=[]; Object.keys(photoStore).forEach(k=>delete photoStore[k]); }
+  let added=0, updated=0, skipped=0;
+  csvParsed.forEach(row => {
+    const ex = state.people.find(p=>p.name.toLowerCase()===row.name.toLowerCase());
+    if (ex) {
+      if (csvMode==='add') { skipped++; return; }
+      Object.assign(ex, { rooftop:row.rooftop||ex.rooftop, store:row.store||ex.store, units:row.units, leases:row.leases, warranties:row.warranties, vip:row.vip, trades:row.trades });
+      updated++;
+    } else {
+      state.people.push({ id:(Date.now()+Math.random()).toString().replace('.',''), ...row });
+      added++;
+    }
+  });
+  saveState(); renderView(); closeModal('csvModal');
+  toast(`✓ Import done: ${added} added, ${updated} updated${skipped?`, ${skipped} skipped`:''}.`);
+}
+function downloadCsvTemplate() {
+  const c = 'Name,Rooftop,Store,Units,Leases,Warranties,VIP,Trades\nJohn Smith,gm,Chevrolet,12,3,5,6,1\nJane Doe,ford,,18,0,9,4,2\nSam Jones,mazda,,15,0,7,3,0\nMike Brown,budget,,22,0,12,1,0';
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(c);
+  a.download = 'holiday_leaderboard_template.csv';
+  a.click();
+}
+
+// Drag-and-drop CSV
+document.addEventListener('DOMContentLoaded', () => {
+  const z = document.getElementById('csvDropZone');
+  if (!z) return;
+  z.addEventListener('dragover', e=>{ e.preventDefault(); z.classList.add('drag-over'); });
+  z.addEventListener('dragleave', ()=>z.classList.remove('drag-over'));
+  z.addEventListener('drop', e=>{
+    e.preventDefault(); z.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f) { document.getElementById('csvFile').files=e.dataTransfer.files; handleCsvFile(f); }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODAL HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click', e=>{ if(e.target===o) o.classList.remove('open'); });
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+renderView();
+</script>
+</body>
+</html>
