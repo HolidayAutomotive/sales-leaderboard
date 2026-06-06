@@ -188,6 +188,57 @@
     /* Toast */
     #toast{position:fixed;bottom:22px;right:22px;color:#fff;padding:11px 18px;border-radius:8px;font-weight:600;font-size:13px;z-index:2000;display:none;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:300px}
 
+
+
+    /* ── 3-column units split ── */
+    .obj-col  { font-size:13px; color:var(--muted); font-weight:500; text-align:center; min-width:42px; }
+    .sold-focus { font-size:22px; font-weight:900; color:var(--blue); text-align:center; letter-spacing:-.5px; }
+    .pace-col { font-size:12px; text-align:center; min-width:70px; }
+    .pace-proj-neutral { color:var(--muted); font-weight:600; white-space:nowrap; }
+    .pct-soft-green  { color:#16a34a; font-weight:700; }
+    .pct-soft-amber  { color:#d97706; font-weight:600; }
+    .pct-soft-muted  { color:var(--muted); font-weight:500; }
+    .col-dash { color:var(--border); }
+
+    /* ── YTD Pacing tab ── */
+    .ytd-bar-wrap { padding:2px 0 }
+    .ytd-bar-bg   { height:18px; background:var(--border); border-radius:5px; position:relative; overflow:hidden; }
+    .ytd-bar-fill { height:100%; border-radius:5px; transition:width .5s; }
+    .ytd-bar-fill.fill-green { background:linear-gradient(90deg,#16a34a,#4ade80); }
+    .ytd-bar-fill.fill-amber { background:linear-gradient(90deg,#d97706,#fbbf24); }
+    .ytd-bar-fill.fill-red   { background:linear-gradient(90deg,#dc2626,#f87171); }
+    .ytd-bar-fill.fill-blue  { background:linear-gradient(90deg,var(--blue),#60a5fa); }
+    .ytd-goal-line { position:absolute; top:0; bottom:0; width:2px; background:rgba(0,0,0,.35); }
+    .ytdpct { font-size:11px; font-weight:700; padding:2px 8px; border-radius:8px; white-space:nowrap; }
+    .ytdpct-green { background:#dcfce7; color:#166534; }
+    .ytdpct-amber { background:#fef9c3; color:#854d0e; }
+    .ytdpct-red   { background:#fee2e2; color:#991b1b; }
+    .ytdpct-blue  { background:var(--blue-light); color:var(--blue); }
+
+    /* ── Goal / Pacing cells ── */
+    .gc { min-width: 150px; }
+    .gc-bar-row { display:flex; align-items:center; gap:6px; margin-bottom:3px; }
+    .gc-bar-bg { flex:1; height:6px; background:var(--border); border-radius:3px; min-width:50px; overflow:hidden; }
+    .gc-bar-fill { height:100%; border-radius:3px; transition:width .4s; }
+    .fill-blue  { background:linear-gradient(90deg,var(--blue),#60a5fa); }
+    .fill-green { background:linear-gradient(90deg,#16a34a,#22c55e); }
+    .fill-amber { background:linear-gradient(90deg,#d97706,#f59e0b); }
+    .fill-red   { background:linear-gradient(90deg,#dc2626,#ef4444); }
+    .fill-gray  { background:var(--border); }
+    .gc-nums { display:flex; align-items:baseline; gap:3px; }
+    .gc-actual { font-weight:700; font-size:16px; color:var(--blue); }
+    .gc-sep { color:var(--muted); font-size:12px; }
+    .gc-obj { font-size:12px; color:var(--muted); }
+    .gc-pct { font-size:10px; font-weight:700; padding:1px 6px; border-radius:8px; margin-left:4px; white-space:nowrap; }
+    .pct-green { background:#dcfce7; color:#166534; }
+    .pct-amber { background:#fef9c3; color:#854d0e; }
+    .pct-red   { background:#fee2e2; color:#991b1b; }
+    .gc-pace { display:flex; align-items:center; gap:5px; margin-top:2px; }
+    .gc-proj { font-size:11px; color:var(--muted); }
+    .pace-on  { font-size:10px; font-weight:700; padding:1px 6px; border-radius:8px; background:#dcfce7; color:#166534; }
+    .pace-off { font-size:10px; font-weight:700; padding:1px 6px; border-radius:8px; background:#fee2e2; color:#991b1b; }
+    .pace-none{ font-size:10px; color:var(--muted); }
+
     @media(max-width:768px){
       .summary-bar{grid-template-columns:repeat(3,1fr);padding:10px}
       main{padding:10px}
@@ -222,7 +273,8 @@
 <div class="tab-wrap">
   <div class="tab-bar" id="tabBar">
     <button class="tab tab-current active" data-tab="current" onclick="switchTab('current')">June 2026</button>
-    <button class="tab" data-tab="ytd" onclick="switchTab('ytd')">📊 YTD 2026</button>
+    <button class="tab" data-tab="ytdpace" onclick="switchTab('ytdpace')">📊 YTD Pacing</button>
+    <button class="tab" data-tab="ytd" onclick="switchTab('ytd')">YTD Stats</button>
     <button class="tab" data-tab="may" onclick="switchTab('may')">May 2026</button>
     <button class="tab" data-tab="apr" onclick="switchTab('apr')">April 2026</button>
     <button class="tab" data-tab="mar" onclick="switchTab('mar')">March 2026</button>
@@ -294,6 +346,8 @@
       <div class="fg"><label>Salesperson *</label>
         <select id="entryPerson" onchange="loadEntryFields(this.value)"><option value="">— Select —</option></select>
       </div>
+      <div class="fdiv">🎯 Monthly Objective</div>
+      <div class="fg"><label>Objective (units goal for this month)</label><input type="number" id="eObj" min="0" placeholder="e.g. 22" /></div>
       <div class="fdiv">📷 Photo</div>
       <div class="photo-area" onclick="document.getElementById('entryPhotoFile').click()">
         <input type="file" id="entryPhotoFile" accept="image/*" onchange="handlePhoto(this,'entryPrev','entryPlc','entryRm')" onclick="event.stopPropagation()" />
@@ -381,35 +435,35 @@ Jane Doe,ford,,18,0,9,4,2</div>
 // ─────────────────────────────────────────────────────────────────────────────
 // HISTORICAL DATA (Jan – May 2026)
 // ─────────────────────────────────────────────────────────────────────────────
-const HISTORICAL = [{"label":"January 2026","rooftops":{"gm":[{"name":"Andy Steger","units":21,"leases":1,"warranties":17,"vip":6,"trades":2,"rooftop":"gm"},{"name":"Joe Griese","units":20,"leases":5,"warranties":13,"vip":3,"trades":4,"rooftop":"gm"},{"name":"Kraig Peterson","units":16,"leases":2,"warranties":7,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Kyle Mand","units":14,"leases":3,"warranties":10,"vip":1,"trades":2,"rooftop":"gm"},{"name":"Jeramie Lefeber","units":14,"leases":0,"warranties":10,"vip":6,"trades":1,"rooftop":"gm"},{"name":"Dan Dettmann","units":13,"leases":0,"warranties":9,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","units":11,"leases":1,"warranties":8,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","units":10,"leases":1,"warranties":5,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Michael Kaupe","units":8,"leases":1,"warranties":3,"vip":1,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","units":5,"leases":0,"warranties":5,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Dale Kuehl","units":1,"leases":1,"warranties":1,"vip":0,"trades":1,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","units":17,"leases":2,"warranties":7,"vip":2,"trades":1,"rooftop":"ford"},{"name":"Edgar Nieto","units":15,"leases":0,"warranties":4,"vip":1,"trades":1,"rooftop":"ford"},{"name":"Samuel Morelos","units":13,"leases":0,"warranties":5,"vip":3,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","units":11,"leases":0,"warranties":5,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Dave Witt","units":9,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","units":7,"leases":0,"warranties":3,"vip":1,"trades":0,"rooftop":"ford"},{"name":"David Olson","units":5,"leases":0,"warranties":1,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Hannah Schaefer","units":4,"leases":0,"warranties":0,"vip":0,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Logan Erickson","units":21,"leases":4,"warranties":10,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Sam Voss","units":19,"leases":3,"warranties":9,"vip":6,"trades":1,"rooftop":"mazda"},{"name":"Hannah Gresser","units":17,"leases":1,"warranties":9,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","units":17,"leases":3,"warranties":8,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"Stuart Powell","units":16,"leases":0,"warranties":3,"vip":1,"trades":0,"rooftop":"mazda"},{"name":"John Krug","units":15,"leases":0,"warranties":9,"vip":1,"trades":2,"rooftop":"mazda"},{"name":"Alex Kuehl","units":14,"leases":1,"warranties":8,"vip":2,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","units":26,"leases":0,"warranties":21,"vip":2,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","units":20,"leases":0,"warranties":11,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","units":17,"leases":0,"warranties":11,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","units":11,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","units":10,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Jack Taylor","units":10,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","units":10,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Holly Schultz","units":7,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"February 2026","rooftops":{"gm":[{"name":"Andy Steger","units":20,"leases":5,"warranties":13,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Joe Griese","units":19,"leases":2,"warranties":13,"vip":2,"trades":4,"rooftop":"gm"},{"name":"Kyle Mand","units":16,"leases":3,"warranties":15,"vip":3,"trades":2,"rooftop":"gm"},{"name":"Dan Dettmann","units":16,"leases":2,"warranties":12,"vip":7,"trades":0,"rooftop":"gm"},{"name":"Kraig Peterson","units":16,"leases":2,"warranties":12,"vip":6,"trades":1,"rooftop":"gm"},{"name":"Jeramie Lefeber","units":14,"leases":4,"warranties":13,"vip":6,"trades":1,"rooftop":"gm"},{"name":"Michael Kaupe","units":14,"leases":1,"warranties":7,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","units":12,"leases":0,"warranties":7,"vip":1,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","units":12,"leases":1,"warranties":8,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Mason Bauer","units":9,"leases":1,"warranties":5,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","units":8,"leases":1,"warranties":4,"vip":2,"trades":0,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","units":19,"leases":3,"warranties":12,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Samuel Morelos","units":14,"leases":0,"warranties":8,"vip":4,"trades":0,"rooftop":"ford"},{"name":"David Olson","units":14,"leases":2,"warranties":4,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Edgar Nieto","units":13,"leases":1,"warranties":4,"vip":3,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","units":10,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","units":7,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Dave Witt","units":7,"leases":1,"warranties":4,"vip":0,"trades":1,"rooftop":"ford"},{"name":"Hannah Schaefer","units":2,"leases":0,"warranties":1,"vip":0,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Logan Erickson","units":20,"leases":3,"warranties":5,"vip":0,"trades":1,"rooftop":"mazda"},{"name":"Alex Kuehl","units":20,"leases":1,"warranties":5,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","units":20,"leases":2,"warranties":5,"vip":4,"trades":0,"rooftop":"mazda"},{"name":"Sam Voss","units":16,"leases":2,"warranties":9,"vip":4,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","units":15,"leases":1,"warranties":7,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"John Krug","units":15,"leases":1,"warranties":8,"vip":1,"trades":1,"rooftop":"mazda"},{"name":"Collin Mcdowell","units":10,"leases":0,"warranties":4,"vip":1,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","units":32,"leases":0,"warranties":24,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","units":19,"leases":0,"warranties":13,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","units":18,"leases":0,"warranties":9,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","units":13,"leases":0,"warranties":9,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","units":13,"leases":0,"warranties":6,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Jack Taylor","units":11,"leases":0,"warranties":5,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","units":10,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Holly Schultz","units":2,"leases":0,"warranties":2,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"March 2026","rooftops":{"gm":[{"name":"Joe Griese","units":20,"leases":1,"warranties":10,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Andy Steger","units":20,"leases":4,"warranties":15,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Kraig Peterson","units":20,"leases":5,"warranties":15,"vip":8,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","units":20,"leases":1,"warranties":15,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Kyle Mand","units":19,"leases":2,"warranties":10,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Jeramie Lefeber","units":14,"leases":2,"warranties":6,"vip":7,"trades":0,"rooftop":"gm"},{"name":"Mason Bauer","units":14,"leases":0,"warranties":10,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Dan Dettmann","units":12,"leases":3,"warranties":5,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","units":11,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Michael Kaupe","units":9,"leases":1,"warranties":7,"vip":4,"trades":1,"rooftop":"gm"},{"name":"Lindsey Zangl","units":5,"leases":0,"warranties":2,"vip":0,"trades":1,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","units":26,"leases":3,"warranties":10,"vip":3,"trades":1,"rooftop":"ford"},{"name":"Dave Witt","units":20,"leases":3,"warranties":10,"vip":1,"trades":3,"rooftop":"ford"},{"name":"David Olson","units":20,"leases":1,"warranties":10,"vip":3,"trades":1,"rooftop":"ford"},{"name":"Jafar Nikkhah","units":18,"leases":2,"warranties":10,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Samuel Morelos","units":16,"leases":0,"warranties":4,"vip":5,"trades":0,"rooftop":"ford"},{"name":"Edgar Nieto","units":16,"leases":2,"warranties":11,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","units":9,"leases":0,"warranties":7,"vip":1,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Alex Kuehl","units":24,"leases":3,"warranties":13,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"Sam Voss","units":24,"leases":2,"warranties":14,"vip":6,"trades":0,"rooftop":"mazda"},{"name":"Logan Erickson","units":23,"leases":0,"warranties":13,"vip":3,"trades":2,"rooftop":"mazda"},{"name":"Jarrod Hart","units":19,"leases":2,"warranties":11,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","units":16,"leases":3,"warranties":8,"vip":1,"trades":0,"rooftop":"mazda"},{"name":"John Krug","units":14,"leases":2,"warranties":5,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Collin Mcdowell","units":10,"leases":0,"warranties":8,"vip":2,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","units":41,"leases":0,"warranties":28,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","units":19,"leases":0,"warranties":12,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","units":16,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","units":14,"leases":0,"warranties":10,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","units":13,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","units":11,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Jack Taylor","units":2,"leases":0,"warranties":2,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"April 2026","rooftops":{"gm":[{"name":"Kyle Mand","units":22,"leases":3,"warranties":15,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Joe Griese","units":19,"leases":5,"warranties":9,"vip":4,"trades":1,"rooftop":"gm"},{"name":"Kraig Peterson","units":17,"leases":2,"warranties":13,"vip":2,"trades":2,"rooftop":"gm"},{"name":"Mason Bauer","units":16,"leases":1,"warranties":10,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Andy Steger","units":14,"leases":2,"warranties":12,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Dan Dettmann","units":12,"leases":1,"warranties":9,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Michael Kaupe","units":12,"leases":0,"warranties":10,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","units":11,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"gm"},{"name":"Jeramie Lefeber","units":10,"leases":2,"warranties":7,"vip":4,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","units":6,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","units":6,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"gm"}],"ford":[{"name":"David Olson","units":16,"leases":0,"warranties":6,"vip":5,"trades":1,"rooftop":"ford"},{"name":"Joe Wege","units":14,"leases":4,"warranties":12,"vip":7,"trades":3,"rooftop":"ford"},{"name":"Samuel Morelos","units":13,"leases":0,"warranties":7,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Nick Kinsman","units":11,"leases":0,"warranties":2,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Edgar Nieto","units":10,"leases":0,"warranties":5,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","units":9,"leases":0,"warranties":4,"vip":4,"trades":1,"rooftop":"ford"},{"name":"Dave Witt","units":8,"leases":3,"warranties":7,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","units":6,"leases":0,"warranties":2,"vip":1,"trades":1,"rooftop":"ford"},{"name":"Anh Tran","units":6,"leases":0,"warranties":3,"vip":2,"trades":1,"rooftop":"ford"}],"mazda":[{"name":"Logan Erickson","units":27,"leases":2,"warranties":13,"vip":5,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","units":24,"leases":2,"warranties":11,"vip":4,"trades":1,"rooftop":"mazda"},{"name":"Sam Voss","units":23,"leases":3,"warranties":10,"vip":6,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","units":21,"leases":1,"warranties":9,"vip":3,"trades":0,"rooftop":"mazda"},{"name":"Alex Kuehl","units":18,"leases":2,"warranties":8,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"John Krug","units":18,"leases":1,"warranties":8,"vip":3,"trades":0,"rooftop":"mazda"},{"name":"Collin Mcdowell","units":17,"leases":0,"warranties":11,"vip":3,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","units":41,"leases":0,"warranties":26,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","units":22,"leases":0,"warranties":10,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","units":22,"leases":0,"warranties":14,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","units":21,"leases":0,"warranties":12,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","units":14,"leases":0,"warranties":9,"vip":1,"trades":1,"rooftop":"budget"},{"name":"Mark Peters","units":12,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"May 2026","rooftops":{"gm":[{"name":"Kraig Peterson","units":22,"leases":2,"warranties":17,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Andy Steger","units":20,"leases":3,"warranties":13,"vip":7,"trades":1,"rooftop":"gm"},{"name":"Kyle Mand","units":19,"leases":2,"warranties":11,"vip":5,"trades":2,"rooftop":"gm"},{"name":"Dan Dettmann","units":16,"leases":1,"warranties":8,"vip":2,"trades":1,"rooftop":"gm"},{"name":"Jeramie Lefeber","units":16,"leases":3,"warranties":8,"vip":6,"trades":2,"rooftop":"gm"},{"name":"Michael Kaupe","units":15,"leases":2,"warranties":9,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","units":15,"leases":0,"warranties":11,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Joe Griese","units":14,"leases":3,"warranties":13,"vip":5,"trades":1,"rooftop":"gm"},{"name":"Mason Bauer","units":13,"leases":0,"warranties":9,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","units":12,"leases":0,"warranties":5,"vip":3,"trades":2,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","units":20,"leases":1,"warranties":13,"vip":10,"trades":2,"rooftop":"ford"},{"name":"Edgar Nieto","units":18,"leases":0,"warranties":5,"vip":6,"trades":0,"rooftop":"ford"},{"name":"Samuel Morelos","units":15,"leases":0,"warranties":11,"vip":2,"trades":1,"rooftop":"ford"},{"name":"David Olson","units":13,"leases":2,"warranties":8,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Nick Kinsman","units":10,"leases":0,"warranties":3,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Anh Tran","units":9,"leases":0,"warranties":4,"vip":3,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","units":9,"leases":1,"warranties":2,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Dave Witt","units":7,"leases":0,"warranties":1,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","units":6,"leases":1,"warranties":3,"vip":3,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Sam Voss","units":21,"leases":2,"warranties":8,"vip":0,"trades":0,"rooftop":"mazda"},{"name":"Logan Erickson","units":20,"leases":2,"warranties":14,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"Collin Mcdowell","units":20,"leases":0,"warranties":7,"vip":3,"trades":0,"rooftop":"mazda"},{"name":"Alex Kuehl","units":18,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","units":18,"leases":4,"warranties":6,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","units":18,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"John Krug","units":16,"leases":1,"warranties":5,"vip":1,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","units":41,"leases":0,"warranties":26,"vip":2,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","units":24,"leases":0,"warranties":11,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","units":21,"leases":0,"warranties":14,"vip":2,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","units":14,"leases":0,"warranties":7,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","units":14,"leases":0,"warranties":7,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","units":13,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Aaron Koenig","units":1,"leases":0,"warranties":0,"vip":0,"trades":0,"rooftop":"budget"}]}}];
+const HISTORICAL = [{"label":"January 2026","rooftops":{"gm":[{"name":"Andy Steger","obj":24,"units":21,"leases":1,"warranties":17,"vip":6,"trades":2,"rooftop":"gm"},{"name":"Joe Griese","obj":24,"units":20,"leases":5,"warranties":13,"vip":3,"trades":4,"rooftop":"gm"},{"name":"Kraig Peterson","obj":24,"units":16,"leases":2,"warranties":7,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Kyle Mand","obj":22,"units":14,"leases":3,"warranties":10,"vip":1,"trades":2,"rooftop":"gm"},{"name":"Jeramie Lefeber","obj":28,"units":14,"leases":0,"warranties":10,"vip":6,"trades":1,"rooftop":"gm"},{"name":"Dan Dettmann","obj":18,"units":13,"leases":0,"warranties":9,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","obj":20,"units":11,"leases":1,"warranties":8,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","obj":16,"units":10,"leases":1,"warranties":5,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Michael Kaupe","obj":16,"units":8,"leases":1,"warranties":3,"vip":1,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","obj":18,"units":5,"leases":0,"warranties":5,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Dale Kuehl","obj":20,"units":1,"leases":1,"warranties":1,"vip":0,"trades":1,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","obj":24,"units":17,"leases":2,"warranties":7,"vip":2,"trades":1,"rooftop":"ford"},{"name":"Edgar Nieto","obj":18,"units":15,"leases":0,"warranties":4,"vip":1,"trades":1,"rooftop":"ford"},{"name":"Samuel Morelos","obj":14,"units":13,"leases":0,"warranties":5,"vip":3,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","obj":20,"units":11,"leases":0,"warranties":5,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Dave Witt","obj":20,"units":9,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","obj":16,"units":7,"leases":0,"warranties":3,"vip":1,"trades":0,"rooftop":"ford"},{"name":"David Olson","obj":24,"units":5,"leases":0,"warranties":1,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Hannah Schaefer","obj":0,"units":4,"leases":0,"warranties":0,"vip":0,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Logan Erickson","obj":24,"units":21,"leases":4,"warranties":10,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Sam Voss","obj":21,"units":19,"leases":3,"warranties":9,"vip":6,"trades":1,"rooftop":"mazda"},{"name":"Hannah Gresser","obj":18,"units":17,"leases":1,"warranties":9,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","obj":20,"units":17,"leases":3,"warranties":8,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"Stuart Powell","obj":22,"units":16,"leases":0,"warranties":3,"vip":1,"trades":0,"rooftop":"mazda"},{"name":"John Krug","obj":18,"units":15,"leases":0,"warranties":9,"vip":1,"trades":2,"rooftop":"mazda"},{"name":"Alex Kuehl","obj":21,"units":14,"leases":1,"warranties":8,"vip":2,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","obj":30,"units":26,"leases":0,"warranties":21,"vip":2,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","obj":18,"units":20,"leases":0,"warranties":11,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","obj":18,"units":17,"leases":0,"warranties":11,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","obj":16,"units":11,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","obj":16,"units":10,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Jack Taylor","obj":12,"units":10,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","obj":0,"units":10,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Holly Schultz","obj":0,"units":7,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"February 2026","rooftops":{"gm":[{"name":"Andy Steger","obj":22,"units":20,"leases":5,"warranties":13,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Joe Griese","obj":20,"units":19,"leases":2,"warranties":13,"vip":2,"trades":4,"rooftop":"gm"},{"name":"Kyle Mand","obj":20,"units":16,"leases":3,"warranties":15,"vip":3,"trades":2,"rooftop":"gm"},{"name":"Dan Dettmann","obj":18,"units":16,"leases":2,"warranties":12,"vip":7,"trades":0,"rooftop":"gm"},{"name":"Kraig Peterson","obj":22,"units":16,"leases":2,"warranties":12,"vip":6,"trades":1,"rooftop":"gm"},{"name":"Jeramie Lefeber","obj":20,"units":14,"leases":4,"warranties":13,"vip":6,"trades":1,"rooftop":"gm"},{"name":"Michael Kaupe","obj":16,"units":14,"leases":1,"warranties":7,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","obj":17,"units":12,"leases":0,"warranties":7,"vip":1,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","obj":16,"units":12,"leases":1,"warranties":8,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Mason Bauer","obj":12,"units":9,"leases":1,"warranties":5,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","obj":12,"units":8,"leases":1,"warranties":4,"vip":2,"trades":0,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","obj":19,"units":19,"leases":3,"warranties":12,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Samuel Morelos","obj":16,"units":14,"leases":0,"warranties":8,"vip":4,"trades":0,"rooftop":"ford"},{"name":"David Olson","obj":20,"units":14,"leases":2,"warranties":4,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Edgar Nieto","obj":18,"units":13,"leases":1,"warranties":4,"vip":3,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","obj":16,"units":10,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","obj":14,"units":7,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Dave Witt","obj":16,"units":7,"leases":1,"warranties":4,"vip":0,"trades":1,"rooftop":"ford"},{"name":"Hannah Schaefer","obj":12,"units":2,"leases":0,"warranties":1,"vip":0,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Logan Erickson","obj":22,"units":20,"leases":3,"warranties":5,"vip":0,"trades":1,"rooftop":"mazda"},{"name":"Alex Kuehl","obj":21,"units":20,"leases":1,"warranties":5,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","obj":21,"units":20,"leases":2,"warranties":5,"vip":4,"trades":0,"rooftop":"mazda"},{"name":"Sam Voss","obj":21,"units":16,"leases":2,"warranties":9,"vip":4,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","obj":21,"units":15,"leases":1,"warranties":7,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"John Krug","obj":20,"units":15,"leases":1,"warranties":8,"vip":1,"trades":1,"rooftop":"mazda"},{"name":"Collin Mcdowell","obj":14,"units":10,"leases":0,"warranties":4,"vip":1,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","obj":28,"units":32,"leases":0,"warranties":24,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","obj":16,"units":19,"leases":0,"warranties":13,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","obj":20,"units":18,"leases":0,"warranties":9,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","obj":18,"units":13,"leases":0,"warranties":9,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","obj":12,"units":13,"leases":0,"warranties":6,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Jack Taylor","obj":11,"units":11,"leases":0,"warranties":5,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","obj":10,"units":10,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Holly Schultz","obj":12,"units":2,"leases":0,"warranties":2,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"March 2026","rooftops":{"gm":[{"name":"Joe Griese","obj":20,"units":20,"leases":1,"warranties":10,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Andy Steger","obj":22,"units":20,"leases":4,"warranties":15,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Kraig Peterson","obj":22,"units":20,"leases":5,"warranties":15,"vip":8,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","obj":16,"units":20,"leases":1,"warranties":15,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Kyle Mand","obj":20,"units":19,"leases":2,"warranties":10,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Jeramie Lefeber","obj":20,"units":14,"leases":2,"warranties":6,"vip":7,"trades":0,"rooftop":"gm"},{"name":"Mason Bauer","obj":12,"units":14,"leases":0,"warranties":10,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Dan Dettmann","obj":18,"units":12,"leases":3,"warranties":5,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","obj":17,"units":11,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Michael Kaupe","obj":16,"units":9,"leases":1,"warranties":7,"vip":4,"trades":1,"rooftop":"gm"},{"name":"Lindsey Zangl","obj":12,"units":5,"leases":0,"warranties":2,"vip":0,"trades":1,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","obj":19,"units":26,"leases":3,"warranties":10,"vip":3,"trades":1,"rooftop":"ford"},{"name":"Dave Witt","obj":16,"units":20,"leases":3,"warranties":10,"vip":1,"trades":3,"rooftop":"ford"},{"name":"David Olson","obj":20,"units":20,"leases":1,"warranties":10,"vip":3,"trades":1,"rooftop":"ford"},{"name":"Jafar Nikkhah","obj":16,"units":18,"leases":2,"warranties":10,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Samuel Morelos","obj":16,"units":16,"leases":0,"warranties":4,"vip":5,"trades":0,"rooftop":"ford"},{"name":"Edgar Nieto","obj":18,"units":16,"leases":2,"warranties":11,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","obj":14,"units":9,"leases":0,"warranties":7,"vip":1,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Alex Kuehl","obj":21,"units":24,"leases":3,"warranties":13,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"Sam Voss","obj":21,"units":24,"leases":2,"warranties":14,"vip":6,"trades":0,"rooftop":"mazda"},{"name":"Logan Erickson","obj":22,"units":23,"leases":0,"warranties":13,"vip":3,"trades":2,"rooftop":"mazda"},{"name":"Jarrod Hart","obj":21,"units":19,"leases":2,"warranties":11,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","obj":21,"units":16,"leases":3,"warranties":8,"vip":1,"trades":0,"rooftop":"mazda"},{"name":"John Krug","obj":20,"units":14,"leases":2,"warranties":5,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Collin Mcdowell","obj":14,"units":10,"leases":0,"warranties":8,"vip":2,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","obj":28,"units":41,"leases":0,"warranties":28,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","obj":20,"units":19,"leases":0,"warranties":12,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","obj":18,"units":16,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","obj":16,"units":14,"leases":0,"warranties":10,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","obj":12,"units":13,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","obj":10,"units":11,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Jack Taylor","obj":11,"units":2,"leases":0,"warranties":2,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"April 2026","rooftops":{"gm":[{"name":"Kyle Mand","obj":23,"units":22,"leases":3,"warranties":15,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Joe Griese","obj":22,"units":19,"leases":5,"warranties":9,"vip":4,"trades":1,"rooftop":"gm"},{"name":"Kraig Peterson","obj":25,"units":17,"leases":2,"warranties":13,"vip":2,"trades":2,"rooftop":"gm"},{"name":"Mason Bauer","obj":14,"units":16,"leases":1,"warranties":10,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Andy Steger","obj":22,"units":14,"leases":2,"warranties":12,"vip":3,"trades":0,"rooftop":"gm"},{"name":"Dan Dettmann","obj":20,"units":12,"leases":1,"warranties":9,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Michael Kaupe","obj":16,"units":12,"leases":0,"warranties":10,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","obj":12,"units":11,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"gm"},{"name":"Jeramie Lefeber","obj":20,"units":10,"leases":2,"warranties":7,"vip":4,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","obj":17,"units":6,"leases":0,"warranties":4,"vip":0,"trades":0,"rooftop":"gm"},{"name":"Hayden Rising","obj":17,"units":6,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"gm"}],"ford":[{"name":"David Olson","obj":18,"units":16,"leases":0,"warranties":6,"vip":5,"trades":1,"rooftop":"ford"},{"name":"Joe Wege","obj":20,"units":14,"leases":4,"warranties":12,"vip":7,"trades":3,"rooftop":"ford"},{"name":"Samuel Morelos","obj":16,"units":13,"leases":0,"warranties":7,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Nick Kinsman","obj":0,"units":11,"leases":0,"warranties":2,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Edgar Nieto","obj":20,"units":10,"leases":0,"warranties":5,"vip":0,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","obj":18,"units":9,"leases":0,"warranties":4,"vip":4,"trades":1,"rooftop":"ford"},{"name":"Dave Witt","obj":18,"units":8,"leases":3,"warranties":7,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","obj":15,"units":6,"leases":0,"warranties":2,"vip":1,"trades":1,"rooftop":"ford"},{"name":"Anh Tran","obj":0,"units":6,"leases":0,"warranties":3,"vip":2,"trades":1,"rooftop":"ford"}],"mazda":[{"name":"Logan Erickson","obj":25,"units":27,"leases":2,"warranties":13,"vip":5,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","obj":24,"units":24,"leases":2,"warranties":11,"vip":4,"trades":1,"rooftop":"mazda"},{"name":"Sam Voss","obj":25,"units":23,"leases":3,"warranties":10,"vip":6,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","obj":24,"units":21,"leases":1,"warranties":9,"vip":3,"trades":0,"rooftop":"mazda"},{"name":"Alex Kuehl","obj":25,"units":18,"leases":2,"warranties":8,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"John Krug","obj":20,"units":18,"leases":1,"warranties":8,"vip":3,"trades":0,"rooftop":"mazda"},{"name":"Collin Mcdowell","obj":15,"units":17,"leases":0,"warranties":11,"vip":3,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","obj":40,"units":41,"leases":0,"warranties":26,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","obj":17,"units":22,"leases":0,"warranties":10,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","obj":20,"units":22,"leases":0,"warranties":14,"vip":1,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","obj":17,"units":21,"leases":0,"warranties":12,"vip":3,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","obj":14,"units":14,"leases":0,"warranties":9,"vip":1,"trades":1,"rooftop":"budget"},{"name":"Mark Peters","obj":14,"units":12,"leases":0,"warranties":8,"vip":0,"trades":0,"rooftop":"budget"}]}},{"label":"May 2026","rooftops":{"gm":[{"name":"Kraig Peterson","obj":23,"units":22,"leases":2,"warranties":17,"vip":4,"trades":2,"rooftop":"gm"},{"name":"Andy Steger","obj":22,"units":20,"leases":3,"warranties":13,"vip":7,"trades":1,"rooftop":"gm"},{"name":"Kyle Mand","obj":24,"units":19,"leases":2,"warranties":11,"vip":5,"trades":2,"rooftop":"gm"},{"name":"Dan Dettmann","obj":17,"units":16,"leases":1,"warranties":8,"vip":2,"trades":1,"rooftop":"gm"},{"name":"Jeramie Lefeber","obj":18,"units":16,"leases":3,"warranties":8,"vip":6,"trades":2,"rooftop":"gm"},{"name":"Michael Kaupe","obj":16,"units":15,"leases":2,"warranties":9,"vip":5,"trades":0,"rooftop":"gm"},{"name":"Noah Ziegler","obj":12,"units":15,"leases":0,"warranties":11,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Joe Griese","obj":22,"units":14,"leases":3,"warranties":13,"vip":5,"trades":1,"rooftop":"gm"},{"name":"Mason Bauer","obj":18,"units":13,"leases":0,"warranties":9,"vip":2,"trades":0,"rooftop":"gm"},{"name":"Lindsey Zangl","obj":12,"units":12,"leases":0,"warranties":5,"vip":3,"trades":2,"rooftop":"gm"}],"ford":[{"name":"Joe Wege","obj":20,"units":20,"leases":1,"warranties":13,"vip":10,"trades":2,"rooftop":"ford"},{"name":"Edgar Nieto","obj":19,"units":18,"leases":0,"warranties":5,"vip":6,"trades":0,"rooftop":"ford"},{"name":"Samuel Morelos","obj":18,"units":15,"leases":0,"warranties":11,"vip":2,"trades":1,"rooftop":"ford"},{"name":"David Olson","obj":20,"units":13,"leases":2,"warranties":8,"vip":2,"trades":0,"rooftop":"ford"},{"name":"Nick Kinsman","obj":12,"units":10,"leases":0,"warranties":3,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Anh Tran","obj":12,"units":9,"leases":0,"warranties":4,"vip":3,"trades":0,"rooftop":"ford"},{"name":"Jafar Nikkhah","obj":16,"units":9,"leases":1,"warranties":2,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Dave Witt","obj":16,"units":7,"leases":0,"warranties":1,"vip":1,"trades":0,"rooftop":"ford"},{"name":"Matt Claus","obj":12,"units":6,"leases":1,"warranties":3,"vip":3,"trades":0,"rooftop":"ford"}],"mazda":[{"name":"Sam Voss","obj":22,"units":21,"leases":2,"warranties":8,"vip":0,"trades":0,"rooftop":"mazda"},{"name":"Logan Erickson","obj":23,"units":20,"leases":2,"warranties":14,"vip":2,"trades":1,"rooftop":"mazda"},{"name":"Collin Mcdowell","obj":15,"units":20,"leases":0,"warranties":7,"vip":3,"trades":0,"rooftop":"mazda"},{"name":"Alex Kuehl","obj":22,"units":18,"leases":0,"warranties":5,"vip":1,"trades":0,"rooftop":"mazda"},{"name":"Hannah Gresser","obj":20,"units":18,"leases":4,"warranties":6,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"Jarrod Hart","obj":20,"units":18,"leases":0,"warranties":6,"vip":2,"trades":0,"rooftop":"mazda"},{"name":"John Krug","obj":18,"units":16,"leases":1,"warranties":5,"vip":1,"trades":0,"rooftop":"mazda"}],"budget":[{"name":"Tony Deich","obj":30,"units":41,"leases":0,"warranties":26,"vip":2,"trades":0,"rooftop":"budget"},{"name":"Stephanie Huebner","obj":18,"units":24,"leases":0,"warranties":11,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Beau Reinhold","obj":17,"units":21,"leases":0,"warranties":14,"vip":2,"trades":0,"rooftop":"budget"},{"name":"Zac Schultz","obj":17,"units":14,"leases":0,"warranties":7,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Mark Peters","obj":12,"units":14,"leases":0,"warranties":7,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Alex Marschall","obj":12,"units":13,"leases":0,"warranties":6,"vip":0,"trades":0,"rooftop":"budget"},{"name":"Aaron Koenig","obj":0,"units":1,"leases":0,"warranties":0,"vip":0,"trades":0,"rooftop":"budget"}]}}];
 
 
 const JUNE_SEED = [
-  {id:'seed_joe_griese',name:'Joe Griese',units:4,leases:1,warranties:1,vip:1,trades:1,rooftop:'gm'},
-  {id:'seed_kyle_mand',name:'Kyle Mand',units:3,leases:1,warranties:1,vip:0,trades:0,rooftop:'gm'},
-  {id:'seed_kraig_peterson',name:'Kraig Peterson',units:3,leases:2,warranties:2,vip:0,trades:0,rooftop:'gm'},
-  {id:'seed_lindsey_zangl',name:'Lindsey Zangl',units:2,leases:0,warranties:2,vip:0,trades:1,rooftop:'gm'},
-  {id:'seed_dan_dettmann',name:'Dan Dettmann',units:2,leases:0,warranties:2,vip:1,trades:1,rooftop:'gm'},
-  {id:'seed_andy_steger',name:'Andy Steger',units:1,leases:1,warranties:0,vip:0,trades:0,rooftop:'gm'},
-  {id:'seed_michael_kaupe',name:'Michael Kaupe',units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'gm'},
-  {id:'seed_mason_bauer',name:'Mason Bauer',units:1,leases:0,warranties:0,vip:0,trades:1,rooftop:'gm'},
-  {id:'seed_jeramie_lefeber',name:'Jeramie Lefeber',units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'gm'},
-  {id:'seed_matt_claus',name:'Matt Claus',units:2,leases:0,warranties:1,vip:0,trades:0,rooftop:'ford'},
-  {id:'seed_nick_kinsman',name:'Nick Kinsman',units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'ford'},
-  {id:'seed_jafar_nikkhah',name:'Jafar Nikkhah',units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'ford'},
-  {id:'seed_joe_wege',name:'Joe Wege',units:1,leases:0,warranties:1,vip:1,trades:0,rooftop:'ford'},
-  {id:'seed_anh_tran',name:'Anh Tran',units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'ford'},
-  {id:'seed_logan_erickson',name:'Logan Erickson',units:3,leases:1,warranties:3,vip:0,trades:0,rooftop:'mazda'},
-  {id:'seed_alex_kuehl',name:'Alex Kuehl',units:2,leases:0,warranties:1,vip:0,trades:0,rooftop:'mazda'},
-  {id:'seed_hannah_gresser',name:'Hannah Gresser',units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'mazda'},
-  {id:'seed_john_krug',name:'John Krug',units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'mazda'},
-  {id:'seed_tony_deich',name:'Tony Deich',units:5,leases:0,warranties:4,vip:0,trades:0,rooftop:'budget'},
-  {id:'seed_stephanie_huebner',name:'Stephanie Huebner',units:3,leases:0,warranties:2,vip:0,trades:0,rooftop:'budget'},
-  {id:'seed_alex_marschall',name:'Alex Marschall',units:3,leases:0,warranties:2,vip:1,trades:0,rooftop:'budget'},
-  {id:'seed_beau_reinhold',name:'Beau Reinhold',units:2,leases:0,warranties:2,vip:0,trades:0,rooftop:'budget'},
-  {id:'seed_zac_schultz',name:'Zac Schultz',units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'budget'},
-  {id:'seed_aaron_koenig',name:'Aaron Koenig',units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'budget'},
-  {id:'seed_savannah_maczuzak',name:'Savannah Maczuzak',units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_joe_griese',name:'Joe Griese',obj:22,units:4,leases:1,warranties:1,vip:1,trades:1,rooftop:'gm'},
+  {id:'seed_kyle_mand',name:'Kyle Mand',obj:24,units:3,leases:1,warranties:1,vip:0,trades:0,rooftop:'gm'},
+  {id:'seed_kraig_peterson',name:'Kraig Peterson',obj:23,units:3,leases:2,warranties:2,vip:0,trades:0,rooftop:'gm'},
+  {id:'seed_lindsey_zangl',name:'Lindsey Zangl',obj:12,units:2,leases:0,warranties:2,vip:0,trades:1,rooftop:'gm'},
+  {id:'seed_dan_dettmann',name:'Dan Dettmann',obj:17,units:2,leases:0,warranties:2,vip:1,trades:1,rooftop:'gm'},
+  {id:'seed_andy_steger',name:'Andy Steger',obj:22,units:1,leases:1,warranties:0,vip:0,trades:0,rooftop:'gm'},
+  {id:'seed_michael_kaupe',name:'Michael Kaupe',obj:16,units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'gm'},
+  {id:'seed_mason_bauer',name:'Mason Bauer',obj:18,units:1,leases:0,warranties:0,vip:0,trades:1,rooftop:'gm'},
+  {id:'seed_jeramie_lefeber',name:'Jeramie Lefeber',obj:18,units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'gm'},
+  {id:'seed_matt_claus',name:'Matt Claus',obj:12,units:2,leases:0,warranties:1,vip:0,trades:0,rooftop:'ford'},
+  {id:'seed_nick_kinsman',name:'Nick Kinsman',obj:12,units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'ford'},
+  {id:'seed_jafar_nikkhah',name:'Jafar Nikkhah',obj:16,units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'ford'},
+  {id:'seed_joe_wege',name:'Joe Wege',obj:20,units:1,leases:0,warranties:1,vip:1,trades:0,rooftop:'ford'},
+  {id:'seed_anh_tran',name:'Anh Tran',obj:12,units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'ford'},
+  {id:'seed_logan_erickson',name:'Logan Erickson',obj:23,units:3,leases:1,warranties:3,vip:0,trades:0,rooftop:'mazda'},
+  {id:'seed_alex_kuehl',name:'Alex Kuehl',obj:22,units:2,leases:0,warranties:1,vip:0,trades:0,rooftop:'mazda'},
+  {id:'seed_hannah_gresser',name:'Hannah Gresser',obj:20,units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'mazda'},
+  {id:'seed_john_krug',name:'John Krug',obj:18,units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'mazda'},
+  {id:'seed_tony_deich',name:'Tony Deich',obj:30,units:5,leases:0,warranties:4,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_stephanie_huebner',name:'Stephanie Huebner',obj:18,units:3,leases:0,warranties:2,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_alex_marschall',name:'Alex Marschall',obj:12,units:3,leases:0,warranties:2,vip:1,trades:0,rooftop:'budget'},
+  {id:'seed_beau_reinhold',name:'Beau Reinhold',obj:17,units:2,leases:0,warranties:2,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_zac_schultz',name:'Zac Schultz',obj:17,units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_aaron_koenig',name:'Aaron Koenig',obj:0,units:1,leases:0,warranties:1,vip:0,trades:0,rooftop:'budget'},
+  {id:'seed_savannah_maczuzak',name:'Savannah Maczuzak',obj:0,units:1,leases:0,warranties:0,vip:0,trades:0,rooftop:'budget'},
 ];
 const HIST_TAB_MAP = { jan:0, feb:1, mar:2, apr:3, may:4 };
 const RT_LABELS = { gm:'GM', ford:'Ford', mazda:'Mazda', budget:'Budget Center' };
@@ -436,7 +490,7 @@ function loadState() {
     if (r) {
       const parsed = { ...defState(), ...JSON.parse(r) };
       // Ensure all people have a rooftop; default to gm if missing
-      parsed.people = parsed.people.map(p => ({ ...p, rooftop: p.rooftop || 'gm' }));
+      parsed.people = parsed.people.map(p => ({ ...p, rooftop: p.rooftop || 'gm', obj: n(p.obj) }));
       return parsed;
     }
     // Fresh install — seed June with proper rooftop assignments
@@ -488,8 +542,18 @@ function toast(msg, err) {
   t.style.display = 'block'; setTimeout(()=>t.style.display='none', 3000);
 }
 function n(v) { return typeof v==='number' ? v : 0; }
+function sortVal(p, col) {
+  if (col === 'pct') return n(p.obj) > 0 ? n(p.units) / n(p.obj) : -1;
+  return n(p[col]);
+}
 function sortPeople(people, col, dir) {
-  return [...people].sort((a,b)=> dir==='desc' ? n(b[col])-n(a[col]) : n(a[col])-n(b[col]));
+  if (col === 'name') {
+    return [...people].sort((a,b) => {
+      const cmp = (a.name||'').localeCompare(b.name||'');
+      return dir === 'asc' ? cmp : -cmp;
+    });
+  }
+  return [...people].sort((a,b) => dir==='desc' ? sortVal(b,col)-sortVal(a,col) : sortVal(a,col)-sortVal(b,col));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -498,6 +562,7 @@ function sortPeople(people, col, dir) {
 function getViewPeople(tabId) {
   if (tabId === 'current') return state.people;
   if (tabId === 'ytd') return computeYTD();
+  if (tabId === 'ytdpace') return computeYTD();
   const idx = HIST_TAB_MAP[tabId];
   if (idx === undefined) return [];
   const m = HISTORICAL[idx];
@@ -510,23 +575,25 @@ function computeYTD() {
   HISTORICAL.forEach(m => {
     Object.values(m.rooftops).flat().forEach(p => {
       const k = p.name.toLowerCase().trim();
-      if (!map[k]) map[k] = { ...p, id: p.name, units:0, leases:0, warranties:0, vip:0, trades:0 };
+      if (!map[k]) map[k] = { ...p, id: p.name, units:0, leases:0, warranties:0, vip:0, trades:0, obj:0 };
       map[k].units     += n(p.units);
       map[k].leases    += n(p.leases);
       map[k].warranties+= n(p.warranties);
       map[k].vip       += n(p.vip);
       map[k].trades    += n(p.trades);
+      map[k].obj       += n(p.obj);
     });
   });
   // Current month
   state.people.forEach(p => {
     const k = p.name.toLowerCase().trim();
-    if (!map[k]) map[k] = { ...p, units:0, leases:0, warranties:0, vip:0, trades:0 };
+    if (!map[k]) map[k] = { ...p, units:0, leases:0, warranties:0, vip:0, trades:0, obj:0 };
     map[k].units     += n(p.units);
     map[k].leases    += n(p.leases);
     map[k].warranties+= n(p.warranties);
     map[k].vip       += n(p.vip);
     map[k].trades    += n(p.trades);
+    map[k].obj       += n(p.obj);
     // Preserve id for photos
     if (p.id) map[k].id = p.id;
   });
@@ -542,11 +609,134 @@ function switchTab(tabId) {
   renderView();
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MONTH PROGRESS (business days)
+// ─────────────────────────────────────────────────────────────────────────────
+function getMonthProgress() {
+  const now = new Date();
+  const yr = now.getFullYear(), mo = now.getMonth(), today = now.getDate();
+  let total = 0, elapsed = 0;
+  const d = new Date(yr, mo, 1);
+  while (d.getMonth() === mo) {
+    const dow = d.getDay();
+    if (dow >= 1 && dow <= 5) {
+      total++;
+      if (d.getDate() <= today) elapsed++;
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return { total, elapsed };
+}
+const MONTH_PROGRESS = getMonthProgress();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// THREE-COLUMN CELLS: Obj | Sold | Pace%
+// ─────────────────────────────────────────────────────────────────────────────
+function threeColsTd(p, viewType) {
+  const u = n(p.units), obj = n(p.obj);
+
+  // Objective cell
+  const objTd = `<td class="obj-col">${obj > 0 ? obj : '<span class="col-dash">—</span>'}</td>`;
+
+  // Sold cell — THE FOCUS
+  const soldTd = `<td class="sold-focus">${u}</td>`;
+
+  // Pace / % cell
+  let inner = '<span class="col-dash">—</span>';
+  if (viewType === 'current' && obj > 0) {
+    const { total, elapsed } = MONTH_PROGRESS;
+    if (elapsed > 0) {
+      const proj = Math.round((u / elapsed) * total);
+      inner = `<span class="pace-proj-neutral">→ ${proj}</span>`;
+    }
+  } else if ((viewType === 'historical' || viewType === 'ytd') && obj > 0) {
+    const pct = Math.round(u / obj * 100);
+    const cls = pct >= 100 ? 'pct-soft-green' : pct >= 80 ? 'pct-soft-amber' : 'pct-soft-muted';
+    inner = `<span class="${cls}">${pct >= 100 ? '✓ ' : ''}${pct}%</span>`;
+  }
+  const paceTd = `<td class="pace-col">${inner}</td>`;
+
+  return objTd + soldTd + paceTd;
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// YTD PACING VIEW
+// ─────────────────────────────────────────────────────────────────────────────
+function renderYTDPacingView() {
+  const ytd = computeYTD();
+  renderSummary(ytd);
+
+  let html = `<div class="ro-banner">📊 Year to Date Pacing — January through June 2026 &nbsp;|&nbsp; Goal = sum of all monthly objectives</div>`;
+
+  RT_ORDER.forEach(rt => {
+    const people = ytd.filter(p => p.rooftop === rt && (n(p.units) > 0 || n(p.obj) > 0));
+    if (!people.length) return;
+    const ssKey = 'ytdp_' + rt;
+    if (!sortStates[ssKey]) sortStates[ssKey] = { col:'units', dir:'desc' };
+    const ss = sortStates[ssKey];
+    const sorted = sortPeople(people, ss.col, ss.dir);
+
+    let rows = '';
+    sorted.forEach((p, i) => {
+      const u = n(p.units), obj = n(p.obj);
+      const pct = obj > 0 ? Math.round(u / obj * 100) : null;
+      const barW = pct !== null ? Math.min(pct, 100) : 0;
+      const overW = pct !== null && pct > 100 ? Math.min(pct - 100, 15) : 0;
+      const fillCls = pct === null ? 'fill-blue' : pct >= 100 ? 'fill-green' : pct >= 80 ? 'fill-amber' : 'fill-red';
+      const pctBadge = pct !== null
+        ? `<span class="ytdpct ${pct >= 100 ? 'ytdpct-green' : pct >= 80 ? 'ytdpct-amber' : 'ytdpct-red'}">${pct >= 100 ? '✓ ' : ''}${pct}%</span>`
+        : `<span class="ytdpct ytdpct-blue">N/A</span>`;
+
+      // Goal marker line: always at the 100% point of the bar
+      const goalLine = obj > 0
+        ? `<div class="ytd-goal-line" style="left:calc(${Math.min(100, Math.round(obj / Math.max(u,obj) * 100))}% - 1px)"></div>` : '';
+
+      rows += `<tr>
+        <td class="tc">${rnkHtml(i+1)}</td>
+        <td><div class="nc-inner">${avatarHtml(p)}<div class="nc-name">${p.name}</div></div></td>
+        <td style="min-width:180px;padding:8px 14px">
+          <div class="ytd-bar-wrap">
+            <div class="ytd-bar-bg">
+              <div class="ytd-bar-fill ${fillCls}" style="width:${barW}%"></div>
+              ${goalLine}
+            </div>
+          </div>
+        </td>
+        <td class="sold-focus">${u}</td>
+        <td class="obj-col">${obj > 0 ? obj : '<span class="col-dash">—</span>'}</td>
+        <td class="tc">${pctBadge}</td>
+      </tr>`;
+    });
+
+    html += `<div class="section-hdr">
+      <div class="section-title"><div class="accent accent-${rt}"></div>${RT_LABELS[rt]}</div>
+      <span class="rt-badge rt-${rt}">${people.length} people</span>
+    </div>
+    <div class="table-wrap" style="margin-bottom:20px">
+      <table class="tbl-${rt}">
+        <thead><tr>
+          <th class="tc">Rank</th>
+          <th class="sortable ${ss.col==='name'?'sort-'+ss.dir:''}" onclick="sortTable('ytdp_${rt}','name')" style="cursor:pointer;user-select:none">Salesperson</th>
+          <th>YTD Progress</th>
+          <th class="tc sortable ${ss.col==='units'?'sort-'+ss.dir:''}" onclick="sortTable('ytdp_${rt}','units')">YTD Sold</th>
+          <th class="tc sortable ${ss.col==='obj'?'sort-'+ss.dir:''}" onclick="sortTable('ytdp_${rt}','obj')">YTD Goal</th>
+          <th class="tc sortable ${ss.col==='pct'?'sort-'+ss.dir:''}" onclick="sortTable('ytdp_${rt}','pct')">% to Goal</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  });
+  return html;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN RENDER
 // ─────────────────────────────────────────────────────────────────────────────
 function renderView() {
   const isCurrent = currentTab === 'current';
+  const isYTDPace = currentTab === 'ytdpace';
   const people = getViewPeople(currentTab);
   const histLabel = currentTab !== 'current' && currentTab !== 'ytd'
     ? HISTORICAL[HIST_TAB_MAP[currentTab]]?.label : null;
@@ -559,12 +749,21 @@ function renderView() {
       document.getElementById('lastUpdated').textContent =
         `Last updated: ${d.toLocaleDateString()} ${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
     } else { document.getElementById('lastUpdated').textContent = ''; }
+  } else if (currentTab === 'ytdpace') {
+    document.getElementById('monthBadge').textContent = '📊 YTD Pacing 2026';
+    document.getElementById('lastUpdated').textContent = 'Jan – Jun 2026 | Objective vs. Actual';
   } else if (currentTab === 'ytd') {
     document.getElementById('monthBadge').textContent = '📊 Year to Date 2026';
     document.getElementById('lastUpdated').textContent = 'Jan – Jun 2026 (all months combined)';
   } else {
     document.getElementById('monthBadge').textContent = `📅 ${histLabel}`;
     document.getElementById('lastUpdated').textContent = 'Historical — read only';
+  }
+
+  // YTD Pacing view renders independently
+  if (isYTDPace) {
+    document.getElementById('mainContent').innerHTML = renderYTDPacingView();
+    return;
   }
 
   // Summary
@@ -587,14 +786,15 @@ function renderView() {
     html += `<div class="ro-banner">📖 ${lbl}</div>`;
   }
 
+  const viewType = isCurrent ? 'current' : currentTab === 'ytd' ? 'ytd' : 'historical';
   // Top 10
-  html += renderTop10Section(people);
+  html += renderTop10Section(people, viewType);
 
   // Rooftop sections
   RT_ORDER.forEach(rt => {
     const rtPeople = people.filter(p => p.rooftop === rt);
     if (rtPeople.length > 0) {
-      html += renderRooftopSection(rt, rtPeople, isCurrent);
+      html += renderRooftopSection(rt, rtPeople, isCurrent, viewType);
     }
   });
 
@@ -619,37 +819,44 @@ function renderSummary(people) {
 // ─────────────────────────────────────────────────────────────────────────────
 // TOP 10
 // ─────────────────────────────────────────────────────────────────────────────
-function renderTop10Section(people) {
+function renderTop10Section(people, viewType) {
   const ss = sortStates.top10;
   const sorted = sortPeople(people, ss.col, ss.dir).slice(0, 10);
-  const maxU = Math.max(1, ...sorted.map(p=>n(p.units)));
 
   let rows = '';
   sorted.forEach((p, i) => {
-    const pct = Math.round(n(p.units)/maxU*100);
     rows += `<tr>
       <td class="tc">${rnkHtml(i+1)}</td>
-      <td><div class="nc-inner">${avatarHtml(p)}<div><div class="nc-name">${p.name}</div>
-        <span class="rt-badge rt-${p.rooftop}" style="margin-top:2px">${RT_LABELS[p.rooftop]||p.rooftop}</span></div></div></td>
-      <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div><span class="bar-num">${n(p.units)}</span></div></td>
+      <td><div class="nc-inner">${avatarHtml(p)}<div>
+        <div class="nc-name">${p.name}</div>
+        <span class="rt-badge rt-${p.rooftop}" style="margin-top:2px">${RT_LABELS[p.rooftop]||p.rooftop}</span>
+      </div></div></td>
+      ${threeColsTd(p, viewType)}
       <td class="num">${n(p.leases)}</td>
       <td class="num">${n(p.warranties)}</td>
       <td class="tc">${n(p.vip)>0?`<span class="vip-val">${n(p.vip)}</span>`:`<span class="vip-zero">—</span>`}</td>
     </tr>`;
   });
 
-  if (!rows) rows = `<tr><td colspan="6"><div class="empty"><div class="ei">🏁</div><p>No data yet.</p></div></td></tr>`;
+  if (!rows) rows = `<tr><td colspan="8"><div class="empty"><div class="ei">🏁</div><p>No data yet.</p></div></td></tr>`;
+
+  const paceNote = viewType === 'current'
+    ? ` <span style="font-size:10px;font-weight:400;opacity:.7">${MONTH_PROGRESS.elapsed} of ${MONTH_PROGRESS.total} business days</span>`
+    : '';
+  const paceHeader = viewType === 'current' ? 'Proj.' : '% Goal';
 
   return `<div class="section-hdr">
-    <div class="section-title"><div class="accent accent-top10"></div>🏆 Dealership Top 10 — All Rooftops</div>
+    <div class="section-title"><div class="accent accent-top10"></div>🏆 Dealership Top 10 — All Rooftops${paceNote}</div>
     <span class="rt-badge rt-top10">Overall</span>
   </div>
   <div class="table-wrap" style="margin-bottom:20px">
     <table class="tbl-top10">
       <thead><tr>
         <th class="tc">Rank</th>
-        <th>Salesperson</th>
-        <th class="tc sortable ${ss.col==='units'?'sort-'+ss.dir:''}" onclick="sortTable('top10','units')">Units</th>
+        <th class="sortable ${ss.col==='name'?'sort-'+ss.dir:''}" onclick="sortTable('top10','name')" style="cursor:pointer;user-select:none">Salesperson</th>
+        <th class="tc sortable ${ss.col==='obj'?'sort-'+ss.dir:''}" onclick="sortTable('top10','obj')">Goal</th>
+        <th class="tc sortable ${ss.col==='units'?'sort-'+ss.dir:''}" onclick="sortTable('top10','units')">Sold</th>
+        <th class="tc sortable ${ss.col==='pct'?'sort-'+ss.dir:''}" onclick="sortTable('top10','pct')">${paceHeader}</th>
         <th class="tc sortable ${ss.col==='leases'?'sort-'+ss.dir:''}" onclick="sortTable('top10','leases')">Leases</th>
         <th class="tc sortable ${ss.col==='warranties'?'sort-'+ss.dir:''}" onclick="sortTable('top10','warranties')">Warranties</th>
         <th class="tc sortable ${ss.col==='vip'?'sort-'+ss.dir:''}" onclick="sortTable('top10','vip')">VIP+</th>
@@ -662,21 +869,19 @@ function renderTop10Section(people) {
 // ─────────────────────────────────────────────────────────────────────────────
 // ROOFTOP SECTION
 // ─────────────────────────────────────────────────────────────────────────────
-function renderRooftopSection(rt, people, isEditable) {
+function renderRooftopSection(rt, people, isEditable, viewType) {
   const ss = sortStates[rt] || { col:'units', dir:'desc' };
   const sorted = sortPeople(people, ss.col, ss.dir);
-  const maxU = Math.max(1, ...sorted.map(p=>n(p.units)));
 
   let rows = '';
   sorted.forEach((p, i) => {
-    const pct = Math.round(n(p.units)/maxU*100);
     const acts = isEditable
       ? `<td class="act"><button class="btn btn-ghost btn-sm" onclick="openEditEntry('${p.id}')">✏️</button> <button class="btn btn-danger btn-sm" onclick="delPerson('${p.id}')">✕</button></td>`
       : '';
     rows += `<tr>
       <td class="tc">${rnkHtml(i+1)}</td>
       <td><div class="nc-inner">${avatarHtml(p)}<div class="nc-name">${p.name}${p.store?`<div class="nc-sub">${p.store}</div>`:''}</div></div></td>
-      <td><div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div><span class="bar-num">${n(p.units)}</span></div></td>
+      ${threeColsTd(p, viewType)}
       <td class="num">${n(p.leases)}</td>
       <td class="num">${n(p.warranties)}</td>
       <td class="tc">${n(p.vip)>0?`<span class="vip-val">${n(p.vip)}</span>`:`<span class="vip-zero">—</span>`}</td>
@@ -685,6 +890,7 @@ function renderRooftopSection(rt, people, isEditable) {
   });
 
   const actsTh = isEditable ? '<th class="tc">Actions</th>' : '';
+  const paceHeader = viewType === 'current' ? 'Proj.' : '% Goal';
   return `<div class="section-hdr">
     <div class="section-title"><div class="accent accent-${rt}"></div>${RT_LABELS[rt]}</div>
     <span class="rt-badge rt-${rt}">${people.length} people</span>
@@ -692,8 +898,11 @@ function renderRooftopSection(rt, people, isEditable) {
   <div class="table-wrap" style="margin-bottom:20px">
     <table class="tbl-${rt}">
       <thead><tr>
-        <th class="tc">Rank</th><th>Salesperson</th>
-        <th class="tc sortable ${ss.col==='units'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','units')">Units</th>
+        <th class="tc">Rank</th>
+        <th class="sortable ${ss.col==='name'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','name')" style="cursor:pointer;user-select:none">Salesperson</th>
+        <th class="tc sortable ${ss.col==='obj'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','obj')">Goal</th>
+        <th class="tc sortable ${ss.col==='units'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','units')">Sold</th>
+        <th class="tc sortable ${ss.col==='pct'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','pct')">${paceHeader}</th>
         <th class="tc sortable ${ss.col==='leases'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','leases')">Leases</th>
         <th class="tc sortable ${ss.col==='warranties'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','warranties')">Warranties</th>
         <th class="tc sortable ${ss.col==='vip'?'sort-'+ss.dir:''}" onclick="sortTable('${rt}','vip')">VIP+</th>
@@ -709,9 +918,20 @@ function renderRooftopSection(rt, people, isEditable) {
 // ─────────────────────────────────────────────────────────────────────────────
 function renderNegSection(people, isEditable) {
   const withTrades = people.filter(p=>n(p.trades)>0);
+  const ss = sortStates.neg;
   let rows = '';
   if (withTrades.length) {
-    sortPeople(withTrades,'trades','desc').forEach((p,i) => {
+    // For rooftop sort, fall back to name sort
+    let sorted;
+    if (ss.col === 'rooftop') {
+      sorted = [...withTrades].sort((a,b) => {
+        const cmp = (a.rooftop||'').localeCompare(b.rooftop||'');
+        return ss.dir === 'asc' ? cmp : -cmp;
+      });
+    } else {
+      sorted = sortPeople(withTrades, ss.col, ss.dir);
+    }
+    sorted.forEach((p,i) => {
       const acts = isEditable
         ? `<td class="act"><button class="btn btn-ghost btn-sm" onclick="openEditEntry('${p.id}')">✏️</button></td>`
         : '';
@@ -733,8 +953,11 @@ function renderNegSection(people, isEditable) {
   <div class="table-wrap tbl-neg" style="margin-bottom:28px">
     <table>
       <thead><tr>
-        <th class="tc">Rank</th><th>Salesperson</th><th class="tc">Rooftop</th>
-        <th class="tc">Dealer Trades</th>${actsTh}
+        <th class="tc">Rank</th>
+        <th class="sortable ${ss.col==='name'?'sort-'+ss.dir:''}" onclick="sortTable('neg','name')" style="cursor:pointer;user-select:none">Salesperson</th>
+        <th class="tc sortable ${ss.col==='rooftop'?'sort-'+ss.dir:''}" onclick="sortTable('neg','rooftop')">Rooftop</th>
+        <th class="tc sortable ${ss.col==='trades'?'sort-'+ss.dir:''}" onclick="sortTable('neg','trades')">Dealer Trades</th>
+        ${actsTh}
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>
@@ -767,7 +990,7 @@ function addPerson() {
   const id = Date.now().toString();
   const photo = getPhotoData('addPrev');
   if (photo) { photoStore[id] = photo; photoStore[name.toLowerCase()] = photo; }
-  state.people.push({ id, name, rooftop: document.getElementById('newRooftop').value, store: document.getElementById('newStore').value, units:0, leases:0, warranties:0, vip:0, trades:0 });
+  state.people.push({ id, name, rooftop: document.getElementById('newRooftop').value, store: document.getElementById('newStore').value, obj:0, units:0, leases:0, warranties:0, vip:0, trades:0 });
   saveState(); renderView(); closeModal('addModal');
   toast(`✓ ${name} added!`);
 }
@@ -794,6 +1017,7 @@ function populateEntrySelect(selId) {
 function loadEntryFields(id) {
   const p = state.people.find(x=>x.id===id);
   if (!p) { clearEntryFields(); resetPhotoUI('entryPhotoFile','entryPrev','entryPlc','entryRm'); return; }
+  document.getElementById('eObj').value        = n(p.obj);
   document.getElementById('eUnits').value      = n(p.units);
   document.getElementById('eLeases').value     = n(p.leases);
   document.getElementById('eWarranties').value = n(p.warranties);
@@ -803,13 +1027,14 @@ function loadEntryFields(id) {
   if (photoStore[id]) loadPhotoUI(photoStore[id],'entryPrev','entryPlc','entryRm');
 }
 function clearEntryFields() {
-  ['eUnits','eLeases','eWarranties','eVip','eTrades'].forEach(id=>document.getElementById(id).value='');
+  ['eObj','eUnits','eLeases','eWarranties','eVip','eTrades'].forEach(id=>document.getElementById(id).value='');
 }
 function saveEntry() {
   const id = document.getElementById('entryPerson').value;
   if (!id) { alert('Please select a salesperson.'); return; }
   const p = state.people.find(x=>x.id===id);
   if (!p) return;
+  p.obj        = parseInt(document.getElementById('eObj').value)||0;
   p.units      = parseInt(document.getElementById('eUnits').value)||0;
   p.leases     = parseInt(document.getElementById('eLeases').value)||0;
   p.warranties = parseInt(document.getElementById('eWarranties').value)||0;
@@ -909,6 +1134,7 @@ function parseCsvText(text) {
   const nameI = hdr.findIndex(h=>h==='name');
   const rtI   = hdr.findIndex(h=>['rooftop','rt','store','location','department'].includes(h));
   const stI   = hdr.findIndex(h=>h==='store'||h==='detail');
+  const objI  = hdr.findIndex(h=>['obj','objective','goal'].includes(h));
   const uI    = hdr.findIndex(h=>h==='units');
   const lI    = hdr.findIndex(h=>h==='leases');
   const wI    = hdr.findIndex(h=>['warranties','warranty','war'].includes(h));
@@ -923,6 +1149,7 @@ function parseCsvText(text) {
     const rtRaw = rtI>-1 ? (cols[rtI]||'').trim().toLowerCase() : '';
     const rt = RT_NORM[rtRaw] || 'gm';
     rows.push({ name, rooftop:rt, store: stI>-1?(cols[stI]||'').trim():'',
+      obj: objI>-1?parseInt(cols[objI])||0:0,
       units: uI>-1?parseInt(cols[uI])||0:0, leases: lI>-1?parseInt(cols[lI])||0:0,
       warranties: wI>-1?parseInt(cols[wI])||0:0, vip: vI>-1?parseInt(cols[vI])||0:0,
       trades: tI>-1?parseInt(cols[tI])||0:0 });
